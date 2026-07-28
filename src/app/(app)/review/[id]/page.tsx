@@ -172,7 +172,7 @@ export default async function ReviewPage({ params }: { params: { id: string } })
                 <input 
                   name="address"
                   type="text" 
-                  defaultValue={(card.address as any)?.text || aiData.address || ""} 
+                  defaultValue={(card.address)?.text || aiData.address || ""} 
                   className="w-full border-b border-border py-2 text-foreground font-medium focus:outline-none focus:border-primary transition-colors bg-transparent"
                 />
               </div>
@@ -185,7 +185,7 @@ export default async function ReviewPage({ params }: { params: { id: string } })
                 <input 
                   name="social_profiles"
                   type="text" 
-                  defaultValue={(card.social_links as any)?.links?.join(', ') || (aiData.social_profiles || []).join(', ')} 
+                  defaultValue={(card.social_links?.links || []).join(', ') || (aiData.social_profiles || []).join(', ')} 
                   className="w-full border-b border-border py-2 text-foreground font-medium focus:outline-none focus:border-primary transition-colors bg-transparent"
                 />
               </div>

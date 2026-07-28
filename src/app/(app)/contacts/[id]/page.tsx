@@ -14,12 +14,16 @@ import {
   AlignLeft,
   Smartphone,
   MessageCircle,
+  Globe,
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import { TestButton } from "./TestButton";
 import { SaveContactButton } from "./SaveContactButton";
+import { ShareContactButton } from "./ShareContactButton";
+import { CopyableField } from "./CopyableField";
+import { InteractiveNotes } from "./InteractiveNotes";
 import Image from "next/image";
 import { Card } from "@/types";
 
@@ -95,9 +99,9 @@ export default async function ContactProfilePage({
               originalPath={card.original_image_path}
             />
           )}
-          <button>
+          <Link href={`/contacts/${card.id}/edit`} className="hover:text-primary transition-colors">
             <Edit2 className="w-5 h-5" />
-          </button>
+          </Link>
           <form action={deleteContact}>
             <button
               type="submit"
@@ -219,8 +223,9 @@ export default async function ContactProfilePage({
         })()}
       </div>
 
-      <div className="px-6 mb-6">
+      <div className="px-6 mb-6 flex flex-col gap-3">
         <SaveContactButton id={id} />
+        <ShareContactButton card={card} />
       </div>
 
       {/* AI Insights */}
@@ -293,54 +298,35 @@ export default async function ContactProfilePage({
           </div>
 
           <div className="divide-y divide-border">
-            <div className="p-4 flex gap-4">
-              <AtSign className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                  Email Address
-                </p>
-                <p className="font-medium text-foreground text-sm">
-                  {email || "Not provided"}
-                </p>
-                {email && (
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Primary
-                  </p>
-                )}
-              </div>
-            </div>
+            <CopyableField
+              icon={<AtSign className="w-5 h-5 text-primary shrink-0 mt-0.5" />}
+              label="Email Address"
+              value={email}
+              subValue={email ? "Primary" : undefined}
+              href={email ? `mailto:${email}` : undefined}
+            />
 
-            <div className="p-4 flex gap-4">
-              <Smartphone className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                  Phone Number
-                </p>
-                <p className="font-medium text-foreground text-sm">
-                  {phone || "Not provided"}
-                </p>
-                {phone && (
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Primary
-                  </p>
-                )}
-              </div>
-            </div>
+            <CopyableField
+              icon={<Smartphone className="w-5 h-5 text-primary shrink-0 mt-0.5" />}
+              label="Phone Number"
+              value={phone}
+              subValue={phone ? "Primary" : undefined}
+              href={phone ? `tel:${phone.replace(/[^0-9+]/g, "")}` : undefined}
+            />
 
-            <div className="p-4 flex gap-4">
-              <Building2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                  Company & Title
-                </p>
-                <p className="font-medium text-foreground text-sm">
-                  {card.company_name || "Not provided"}
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {card.designation || ""}
-                </p>
-              </div>
-            </div>
+            <CopyableField
+              icon={<Globe className="w-5 h-5 text-primary shrink-0 mt-0.5" />}
+              label="Website"
+              value={card.website}
+              href={card.website ? (card.website.startsWith('http') ? card.website : `https://${card.website}`) : undefined}
+            />
+
+            <CopyableField
+              icon={<Building2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />}
+              label="Company & Title"
+              value={card.company_name}
+              subValue={card.designation}
+            />
 
             <div className="p-4 flex gap-4">
               <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
@@ -376,9 +362,9 @@ export default async function ContactProfilePage({
                 <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
                   Notes
                 </p>
-                <p className="text-sm text-foreground italic leading-relaxed">
-                  {notes}
-                </p>
+                <div className="pt-1">
+                  <InteractiveNotes id={id} initialNotes={card.notes || ""} />
+                </div>
               </div>
             </div>
           </div>

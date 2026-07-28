@@ -36,8 +36,10 @@ export async function POST(request: NextRequest) {
 
     // 3. Call Gemini
     const prompt = `
-      You are an expert AI business card data extractor.
+      You are an expert AI business card data extractor and translator.
       Analyze the provided business card image and extract all relevant information.
+      IMPORTANT: You must translate ALL extracted text (job title, company name, address, tags, summary, etc.) into English, irrespective of the original language on the business card. Names (full_name) should be kept in their original format but transliterated to the Latin alphabet if necessary.
+      If a person's full name is NOT written on the card (e.g. it's just a general company card), you MUST use the company/firm name as the 'full_name'.
       Return the data strictly as a JSON object matching the following structure exactly (use null if a field is not found):
       {
         "full_name": "String",
@@ -71,6 +73,8 @@ export async function POST(request: NextRequest) {
       For 'has_whatsapp', look closely at the phone number on the card. If there is a WhatsApp logo, icon, or explicit mention of WhatsApp next to it, return true. Otherwise, return false.
 
       For 'tags', generate 2-3 highly relevant, short categorical tags (max 2 words each) describing the person's industry, sector, or professional domain (e.g., "Enterprise AI", "Fintech", "Real Estate").
+
+      For 'summary', generate a short professional summary of the person and company based on the card. IMPORTANT: You must also explicitly extract and append any handwritten notes, scribbles, or extra text written on the card into this 'summary' field.
 
       Do not include any markdown formatting, backticks, or extra text. Return ONLY the JSON object.
     `;
@@ -273,6 +277,7 @@ export async function POST(request: NextRequest) {
         social_links: extractedData.social_profiles
           ? { links: extractedData.social_profiles }
           : {},
+        notes: extractedData.summary,
         ai_metadata: extractedData,
         processing_status: "ready_for_review",
         original_image_path: finalImagePath,
