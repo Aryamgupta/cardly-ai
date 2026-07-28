@@ -8,7 +8,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         {children}
 
         {/* Bottom Navigation */}
-        <nav className="fixed bottom-0 w-full max-w-md bg-background border-t border-border flex justify-between items-center px-6 py-3 z-50">
+        <nav className="fixed bottom-0 w-full max-w-md left-1/2 -translate-x-1/2 bg-background border-t border-border flex justify-between items-center px-6 py-3 z-50">
           <Link href="/dashboard" className="flex flex-col items-center gap-1 text-primary">
             <LayoutDashboard className="w-5 h-5" />
             <span className="text-[10px] font-medium">Dashboard</span>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Loader2, AlertCircle } from "lucide-react";
+import { ArrowRight, Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { signIn } from "@/app/actions/auth";
 import { useState, useTransition } from "react";
@@ -21,7 +21,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-tertiary text-foreground flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-tertiary text-foreground flex flex-col items-center justify-center p-6 relative">
+      <Link href="/" className="absolute top-8 left-8 text-muted-foreground hover:text-white flex items-center gap-2 text-sm transition-colors">
+        <ArrowLeft className="w-4 h-4" />
+        Back to Home
+      </Link>
       <div className="w-full max-w-md space-y-8">
         <div className="text-center flex flex-col items-center space-y-4">
           <Logo className="w-16 h-16" />

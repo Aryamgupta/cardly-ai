@@ -74,7 +74,7 @@ export default async function ReviewPage({ params }: { params: { id: string } })
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col relative pb-40">
       {/* Header */}
       <div className="flex items-center justify-between p-6 bg-white border-b border-border sticky top-0 z-10">
         <div className="flex items-center gap-4">
@@ -195,7 +195,7 @@ export default async function ReviewPage({ params }: { params: { id: string } })
       </div>
 
       {/* Footer Action */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-white border-t border-border z-20">
+      <div className="fixed bottom-[72px] w-full max-w-md left-1/2 -translate-x-1/2 p-6 bg-white border-t border-border z-40 rounded-t-3xl shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)]">
         <button type="submit" form="review-form" className="w-full bg-primary text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/25 hover:bg-primary/90 transition-colors">
           <Check className="w-5 h-5" /> Save to Contacts
         </button>
