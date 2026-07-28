@@ -4,6 +4,7 @@ import { Search, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
+import { Card } from "@/types";
 
 function getInitials(name: string) {
   if (!name) return "?";
@@ -12,7 +13,7 @@ function getInitials(name: string) {
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
-  const [cards, setCards] = useState<any[]>([]);
+  const [cards, setCards] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
@@ -70,7 +71,7 @@ export default function SearchPage() {
 
       {!loading && query && filteredCards.length === 0 && (
         <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
-           <p>No results found for "{query}"</p>
+           <p>No results found for &quot;{query}&quot;</p>
         </div>
       )}
 

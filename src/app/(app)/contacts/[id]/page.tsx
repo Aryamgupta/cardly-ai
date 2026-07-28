@@ -20,6 +20,8 @@ import { createClient } from "@/utils/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import { TestButton } from "./TestButton";
 import { SaveContactButton } from "./SaveContactButton";
+import Image from "next/image";
+import { Card } from "@/types";
 
 export default async function ContactProfilePage({
   params,
@@ -38,18 +40,18 @@ export default async function ContactProfilePage({
     redirect("/login");
   }
 
-  const { data: card } = await supabase
+  const { data } = await supabase
     .from("cards")
     .select("*")
     .eq("id", id)
     .eq("user_id", user.id)
     .single();
 
+  const card = data as Card | null;
+
   if (!card) {
     return notFound();
   }
-
-  console.log({ card });
 
   let imageUrl = null;
   if (card.original_image_path) {
@@ -62,8 +64,8 @@ export default async function ContactProfilePage({
 
   const email = card.emails && card.emails.length > 0 ? card.emails[0] : null;
   const phone = card.phones && card.phones.length > 0 ? card.phones[0] : null;
-  const addressText = (card.address as any)?.text || null;
-  const addressCoords = (card.address as any)?.coordinates || null;
+  const addressText = card.address?.text || null;
+  const addressCoords = card.address?.coordinates || null;
   const mapQuery = addressCoords
     ? `${addressCoords.lat},${addressCoords.lng}`
     : addressText;
@@ -111,7 +113,7 @@ export default async function ContactProfilePage({
       {/* Profile Info */}
       <div className="flex flex-col items-center px-6 pt-2 pb-6">
         <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-lg mb-4 bg-slate-200">
-          <img
+          <Image
             src={avatarUrl}
             alt={card.full_name || "Contact"}
             className="w-full h-full object-cover"
@@ -130,8 +132,10 @@ export default async function ContactProfilePage({
 
         {/* We can hide these tags or generate them dynamically later */}
         <div className="flex flex-wrap justify-center gap-2 mb-3">
-          {((card.ai_metadata as any)?.tags || []).map((tag: string, index: number) => {
-            const hash = tag.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+          {(card.ai_metadata?.tags || []).map((tag: string, index: number) => {
+            const hash = tag
+              .split("")
+              .reduce((acc, char) => acc + char.charCodeAt(0), 0);
             const tagColors = [
               "bg-blue-100 text-blue-700",
               "bg-emerald-100 text-emerald-700",
@@ -142,7 +146,10 @@ export default async function ContactProfilePage({
             ];
             const colorClass = tagColors[hash % tagColors.length];
             return (
-              <span key={index} className={`px-3 py-1 text-xs font-semibold rounded-full ${colorClass}`}>
+              <span
+                key={index}
+                className={`px-3 py-1 text-xs font-semibold rounded-full ${colorClass}`}
+              >
                 {tag}
               </span>
             );
@@ -153,27 +160,30 @@ export default async function ContactProfilePage({
       {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-3 px-6 mb-3">
         <a
-          href={phone ? `tel:${phone.replace(/[^0-9+]/g, '')}` : "#"}
-          className={`flex flex-col items-center justify-center gap-2 py-3 bg-primary text-white rounded-xl shadow-sm transition-colors ${!phone ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-primary/90'}`}
+          href={phone ? `tel:${phone.replace(/[^0-9+]/g, "")}` : "#"}
+          className={`flex flex-col items-center justify-center gap-2 py-3 bg-primary text-white rounded-xl shadow-sm transition-colors ${!phone ? "opacity-50 cursor-not-allowed pointer-events-none" : "hover:bg-primary/90"}`}
         >
           <Phone className="w-5 h-5" />
           <span className="text-xs font-medium">Call</span>
         </a>
         <a
           href={email ? `mailto:${email}` : "#"}
-          className={`flex flex-col items-center justify-center gap-2 py-3 bg-primary/10 text-primary rounded-xl shadow-sm transition-colors ${!email ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-primary/20'}`}
+          className={`flex flex-col items-center justify-center gap-2 py-3 bg-primary/10 text-primary rounded-xl shadow-sm transition-colors ${!email ? "opacity-50 cursor-not-allowed pointer-events-none" : "hover:bg-primary/20"}`}
         >
           <Mail className="w-5 h-5" />
           <span className="text-xs font-medium">Email</span>
         </a>
         {(() => {
-          const hasWhatsapp = (card.ai_metadata as any)?.has_whatsapp === true;
+          const hasWhatsapp = card.ai_metadata?.has_whatsapp === true;
           if (hasWhatsapp) {
             return (
               <a
-                href={phone ? `https://wa.me/${phone.replace(/[^0-9+]/g, '')}` : "#"}
-                target="_blank" rel="noopener noreferrer"
-                className={`flex flex-col items-center justify-center gap-2 py-3 bg-[#25D366]/10 text-[#25D366] rounded-xl shadow-sm transition-colors ${!phone ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-[#25D366]/20'}`}
+                href={
+                  phone ? `https://wa.me/${phone.replace(/[^0-9+]/g, "")}` : "#"
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`flex flex-col items-center justify-center gap-2 py-3 bg-[#25D366]/10 text-[#25D366] rounded-xl shadow-sm transition-colors ${!phone ? "opacity-50 cursor-not-allowed pointer-events-none" : "hover:bg-[#25D366]/20"}`}
               >
                 <MessageCircle className="w-5 h-5" />
                 <span className="text-xs font-medium">WhatsApp</span>
@@ -182,8 +192,8 @@ export default async function ContactProfilePage({
           }
           return (
             <a
-              href={phone ? `sms:${phone.replace(/[^0-9+]/g, '')}` : "#"}
-              className={`flex flex-col items-center justify-center gap-2 py-3 bg-primary/10 text-primary rounded-xl shadow-sm transition-colors ${!phone ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-primary/20'}`}
+              href={phone ? `sms:${phone.replace(/[^0-9+]/g, "")}` : "#"}
+              className={`flex flex-col items-center justify-center gap-2 py-3 bg-primary/10 text-primary rounded-xl shadow-sm transition-colors ${!phone ? "opacity-50 cursor-not-allowed pointer-events-none" : "hover:bg-primary/20"}`}
             >
               <MessageSquare className="w-5 h-5" />
               <span className="text-xs font-medium">Message</span>
@@ -191,13 +201,16 @@ export default async function ContactProfilePage({
           );
         })()}
         {(() => {
-          const linkedInUrl = (card.social_links as any)?.links?.find((link: string) => link.toLowerCase().includes('linkedin')) || (card.social_links as any)?.links?.[0];
+          const linkedInUrl =
+            card.social_links?.links?.find((link: string) =>
+              link.toLowerCase().includes("linkedin"),
+            ) || card.social_links?.links?.[0];
           return (
             <a
               href={linkedInUrl || "#"}
               target={linkedInUrl ? "_blank" : undefined}
               rel={linkedInUrl ? "noopener noreferrer" : undefined}
-              className={`flex flex-col items-center justify-center gap-2 py-3 bg-white border border-border text-foreground rounded-xl shadow-sm transition-colors ${!linkedInUrl ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-slate-50'}`}
+              className={`flex flex-col items-center justify-center gap-2 py-3 bg-white border border-border text-foreground rounded-xl shadow-sm transition-colors ${!linkedInUrl ? "opacity-50 cursor-not-allowed pointer-events-none" : "hover:bg-slate-50"}`}
             >
               <LinkIcon className="w-5 h-5" />
               <span className="text-xs font-medium">LinkedIn</span>
@@ -217,7 +230,7 @@ export default async function ContactProfilePage({
             <Sparkles className="w-4 h-4" /> AI Insights
           </div>
           <p className="text-sm text-foreground leading-relaxed mb-4">
-            {(card.ai_metadata as any)?.summary ||
+            {card.ai_metadata?.summary ||
               "AI extraction complete. More insights will be available soon."}
           </p>
           {/* Static tags for now */}
@@ -339,7 +352,7 @@ export default async function ContactProfilePage({
                   {addressText || "Not provided"}
                 </p>
 
-                {addressText && (
+                {addressText && mapQuery && (
                   <div className="w-full h-48 bg-slate-100 rounded-lg overflow-hidden relative border border-border mt-2">
                     <iframe
                       width="100%"
