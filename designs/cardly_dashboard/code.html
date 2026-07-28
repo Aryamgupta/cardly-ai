@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cardly AI - Dashboard</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .ai-glow {
+            box-shadow: 0 0 15px rgba(132, 85, 239, 0.4);
+            transition: all 0.3s ease;
+        }
+        .ai-glow:hover {
+            box-shadow: 0 0 25px rgba(132, 85, 239, 0.6);
+            transform: translateY(-1px);
+        }
+        .glass-card {
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 16px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-error": "#ffffff",
+                      "error": "#ba1a1a",
+                      "surface-tint": "#494bd6",
+                      "on-secondary-fixed-variant": "#5516be",
+                      "surface-container-high": "#dce9ff",
+                      "tertiary-fixed-dim": "#c1c5dc",
+                      "on-secondary-fixed": "#23005c",
+                      "on-secondary": "#ffffff",
+                      "on-background": "#0b1c30",
+                      "background": "#f8f9ff",
+                      "secondary-fixed": "#e9ddff",
+                      "surface-bright": "#f8f9ff",
+                      "secondary-container": "#8455ef",
+                      "primary-fixed": "#e1e0ff",
+                      "on-surface-variant": "#464554",
+                      "secondary": "#6b38d4",
+                      "tertiary": "#595e71",
+                      "inverse-surface": "#213145",
+                      "on-primary-container": "#fffbff",
+                      "outline": "#767586",
+                      "on-primary": "#ffffff",
+                      "primary": "#4648d4",
+                      "inverse-primary": "#c0c1ff",
+                      "on-primary-fixed-variant": "#2f2ebe",
+                      "surface-container": "#e5eeff",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-fixed-variant": "#414658",
+                      "tertiary-container": "#72768a",
+                      "secondary-fixed-dim": "#d0bcff",
+                      "surface-container-highest": "#d3e4fe",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "surface-variant": "#d3e4fe",
+                      "on-tertiary-container": "#020413",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed": "#dee1f9",
+                      "primary-fixed-dim": "#c0c1ff",
+                      "surface-dim": "#cbdbf5",
+                      "surface": "#f8f9ff",
+                      "on-surface": "#0b1c30",
+                      "on-secondary-container": "#fffbff",
+                      "on-tertiary-fixed": "#161b2b",
+                      "outline-variant": "#c7c4d7",
+                      "inverse-on-surface": "#eaf1ff",
+                      "primary-container": "#6063ee",
+                      "surface-container-low": "#eff4ff",
+                      "on-primary-fixed": "#07006c"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "base": "4px",
+                      "margin-mobile": "16px",
+                      "stack-lg": "32px",
+                      "stack-sm": "8px",
+                      "stack-md": "16px",
+                      "margin-desktop": "40px",
+                      "container-max": "1280px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "body-lg": ["Inter"],
+                      "display-lg-mobile": ["Inter"],
+                      "label-md": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "body-md": ["Inter"],
+                      "headline-md": ["Inter"]
+              },
+              "fontSize": {
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "headline-sm": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-md": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-40 bg-surface border-b border-outline-variant shadow-sm">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-stack-sm max-w-container-max mx-auto">
+<div class="flex items-center gap-stack-md">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of Alex, a confident executive with a warm smile, set against a blurred modern office background with soft bokeh lighting. The style is premium corporate photography with clean, high-key illumination and a sophisticated indigo and white color palette consistent with the Cardly AI brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3bsQa46PKmMt5H5MPglu0fEyy2xASn_uv1AqSbnqpCuFLzOYADixCprw4pFr_fy4-7I5DRqZ_xj6pF8vXrymMorKdpe5Evwa3DTl01oxQgufIYMNKaT7fNLYmwtqg2WAdmPY11dyPtY4kKM-11eFmzD0yOKUQZ-rm7wCpM72oWOnQJQv601w-xrX-kwx2jYPPMKvKrshPESTDSdmBypyEKkp1TC6WpYCcopAbQz7-AZM3up43BsqMI3Avz5oQvBftsCE7USHFI6EZ"/>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Good morning,</p>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">Alex</h1>
+</div>
+</div>
+<div class="flex items-center gap-stack-md">
+<button class="material-symbols-outlined p-stack-sm text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full">
+                    notifications
+                </button>
+<div class="hidden md:block font-headline-sm text-headline-sm font-bold text-primary">Cardly AI</div>
+</div>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg">
+<!-- Dashboard Hero / Bento Section -->
+<div class="flex flex-col md:grid md:grid-cols-12 gap-gutter">
+<!-- Metrics & Quick Action Column -->
+<div class="md:col-span-4 flex flex-col gap-gutter">
+<!-- Metrics Card -->
+<div class="bg-surface-container-lowest p-stack-md rounded-xl shadow-sm border border-outline-variant">
+<h2 class="font-label-md text-label-md text-on-surface-variant mb-stack-md">Networking Stats</h2>
+<div class="flex flex-col gap-stack-md">
+<div class="flex items-center justify-between p-stack-sm bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-stack-sm">
+<span class="material-symbols-outlined text-primary">groups</span>
+<span class="font-body-md text-body-md">Total Contacts</span>
+</div>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">1,248</span>
+</div>
+<div class="flex items-center justify-between p-stack-sm bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-stack-sm">
+<span class="material-symbols-outlined text-secondary">qr_code_scanner</span>
+<span class="font-body-md text-body-md">Scanned This Week</span>
+</div>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">14</span>
+</div>
+</div>
+</div>
+<!-- Quick Action Button -->
+<button class="ai-glow w-full py-stack-lg px-stack-md bg-secondary text-on-secondary rounded-xl flex flex-col items-center justify-center gap-stack-sm transition-all active:scale-95 group relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-tr from-primary to-secondary-container opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="relative z-10 flex flex-col items-center">
+<span class="material-symbols-outlined text-[48px] mb-2" style="font-variation-settings: 'FILL' 1;">add_a_photo</span>
+<span class="font-headline-sm text-headline-sm font-bold">Scan New Card</span>
+<p class="font-body-sm text-body-sm opacity-90">AI-powered transcription</p>
+</div>
+</button>
+</div>
+<!-- Recently Added List Section -->
+<div class="md:col-span-8">
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+<div class="px-stack-md py-stack-md border-b border-outline-variant flex justify-between items-center">
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface">Recently Added</h2>
+<button class="text-primary font-label-md text-label-md hover:underline">View All</button>
+</div>
+<div class="divide-y divide-outline-variant">
+<!-- Card 1 -->
+<div class="p-stack-md flex items-center gap-stack-md hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="w-24 h-14 rounded-lg bg-surface-variant flex-shrink-0 overflow-hidden border border-outline-variant shadow-sm relative group-hover:scale-105 transition-transform">
+<img class="w-full h-full object-cover" data-alt="A macro photograph of a sleek, minimalist professional business card lying on a dark slate surface. The card features a modern logo with geometric lines and elegant sans-serif typography. The lighting is dramatic and directional, creating soft shadows and highlighting the high-quality paper texture in a corporate indigo aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKC03Bm6tx16IZoXDS8Nqbc1PftNvQqTtLnkSsu51ud3ajr9rKVuRY-qiJCUSBJBkBCux4WsOYXTG5oqFHprt7V1M670GBrMNujSD9cAZrZTc6cszkVcCDOlD5OYbrEmPXvmb6UpL5o4qSxgQL_u6suqHs9rAKlK19xNUKc7ee9gAzyvPvn4XJzspnEF9f6Nn6UHGbx54W6eoXzJCFVmBms21SbQ_JRKz_QMbkYxdowebVR_HwGcy-LiiwIYhIZaMOyrfAVWnlF1ln"/>
+</div>
+<div class="flex-grow">
+<h3 class="font-headline-sm text-body-lg font-bold text-on-surface">Jordan Vane</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Lead Designer at Veridian Systems</p>
+</div>
+<div class="flex items-center gap-stack-sm">
+<span class="hidden md:inline font-label-sm text-label-sm text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-full">2h ago</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">chevron_right</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="p-stack-md flex items-center gap-stack-md hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="w-24 h-14 rounded-lg bg-surface-variant flex-shrink-0 overflow-hidden border border-outline-variant shadow-sm relative group-hover:scale-105 transition-transform">
+<img class="w-full h-full object-cover" data-alt="A close-up image of a business card for a technology executive, showcasing clean white space and bold indigo typography. The card rests on a polished glass table that reflects soft blue ambient light, symbolizing a high-end corporate environment. The image is crisp, professional, and follows a luxury tech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA00ZHwosl_UkB6fPKQ4W8p7UPhtYvjs--ojZldE2ZzD_3aaHxxT7o-owJqZLl0jlJ23ipLOJUYBvbJwZl31ZuyVQ6btPhu6BPbhZsS5E0hu7bCL3CtUENWEEeOYsMarZkhhLIEdlkvCd81yDU8ITSp3QXp7Q0WpArKWinhteAfqJ9Jh63V4vWzwfBdlNK4Yt_twbDPHhmqJ3ZM9REabYovw_KB7gOqKUNgChQc1_Q2NYFq8tqMtVuHzQsmeVoEcYHJICorsD4iUke-"/>
+</div>
+<div class="flex-grow">
+<h3 class="font-headline-sm text-body-lg font-bold text-on-surface">Elena Rodriguez</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">CTO at Flux Dynamics</p>
+</div>
+<div class="flex items-center gap-stack-sm">
+<span class="hidden md:inline font-label-sm text-label-sm text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-full">Yesterday</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">chevron_right</span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="p-stack-md flex items-center gap-stack-md hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="w-24 h-14 rounded-lg bg-surface-variant flex-shrink-0 overflow-hidden border border-outline-variant shadow-sm relative group-hover:scale-105 transition-transform">
+<img class="w-full h-full object-cover" data-alt="A modern business card featuring a minimalist AI-themed design with subtle violet gradients and a silver foil logo. The card is positioned artistically on a textured light-gray concrete surface, bathed in bright, natural morning sunlight that creates sharp, elegant shadows. The composition is clean, airy, and high-status." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCM6vTyZTmSCCMp6lbOd98duIcgtBTQHe5R1uz9B1umDQO5qgUydMKskBiwjWr2F6NXc7jkcZ1p-835OieiBpZTS3Iq6zY4Fcov2p2loE_jsmDoYr9pHKKayRbrmTTjBtNrtqkJ5t0ZGFklcxDQVGGNcrGvj6IDTYgdxS8MULWl3HeVsPjHBfSDKaHhgCbgZW7sigo3Fc6pN_Noldrn8Nv8R-bZKvhNUvxNTinXjMmzp3FH8TfpN6JpsLTtIQA843mDBrIszV_UxihF"/>
+</div>
+<div class="flex-grow">
+<h3 class="font-headline-sm text-body-lg font-bold text-on-surface">Marcus Thorne</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">VP Sales at Nexus Global</p>
+</div>
+<div class="flex items-center gap-stack-sm">
+<span class="hidden md:inline font-label-sm text-label-sm text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-full">Mar 12</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">chevron_right</span>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="p-stack-md flex items-center gap-stack-md hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="w-24 h-14 rounded-lg bg-surface-variant flex-shrink-0 overflow-hidden border border-outline-variant shadow-sm relative group-hover:scale-105 transition-transform">
+<img class="w-full h-full object-cover" data-alt="An elegant, dark-themed business card with gold-embossed lettering, resting on a navy silk fabric background. The card belongs to a high-ranking corporate officer, and the visual style is deeply luxurious, focusing on contrast and texture. The mood is authoritative and premium, echoing a successful corporate network identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAF32G8hlBIlJaMFTME6DLb1-L9AivXDEMZXcwscZ_ypEoJCuhYvkP1SsD1gCoqvBKqEfS61ptGvQEV9TlNmqu6jWdk1JZWLWydj1J25LQYAGGrZ2eTFCRf82Mxi0XXF2--v-4z4A2UghYBxwV2EHNl4Nbl8TcZ_pjFYia3NddQ-RUFloX9yJgdp0qVeiXop9V_uq6iqUMJQwsu2NF94kWGllkxwz0Fz1FtjrESFA5s5I-zT_sm1BBheIFuiQDxR18u69U36iaGE4rB"/>
+</div>
+<div class="flex-grow">
+<h3 class="font-headline-sm text-body-lg font-bold text-on-surface">Sarah Jenkins</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Founder at Creative AI</p>
+</div>
+<div class="flex items-center gap-stack-sm">
+<span class="hidden md:inline font-label-sm text-label-sm text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-full">Mar 10</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full relative mt-stack-lg bg-surface-container-low border-t border-outline-variant">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop py-stack-md max-w-container-max mx-auto">
+<p class="font-body-sm text-body-sm text-on-surface-variant">© 2024 Cardly AI. Precision Networking.</p>
+<div class="flex gap-stack-md mt-stack-sm md:mt-0">
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Contact Support</a>
+</div>
+</div>
+</footer>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface border-t border-outline-variant shadow-[0_-4px_20px_rgba(0,0,0,0.05)] md:hidden">
+<div class="flex justify-around items-center h-16 w-full px-base pb-safe">
+<!-- Dashboard (Active) -->
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-label-sm text-label-sm">Dashboard</span>
+</a>
+<!-- Contacts -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">contacts</span>
+<span class="font-label-sm text-label-sm">Contacts</span>
+</a>
+<!-- Scan -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">add_a_photo</span>
+<span class="font-label-sm text-label-sm">Scan</span>
+</a>
+<!-- Search -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="font-label-sm text-label-sm">Search</span>
+</a>
+<!-- Settings -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-sm text-label-sm">Settings</span>
+</a>
+</div>
+</nav>
+<script>
+        // Micro-interaction for list items
+        document.querySelectorAll('.cursor-pointer').forEach(item => {
+            item.addEventListener('mousedown', () => {
+                item.style.transform = 'scale(0.98)';
+            });
+            item.addEventListener('mouseup', () => {
+                item.style.transform = 'scale(1)';
+            });
+            item.addEventListener('mouseleave', () => {
+                item.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body></html>

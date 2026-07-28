@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cardly AI 📇
 
-## Getting Started
+Cardly AI is a modern, mobile-first Progressive Web Application (PWA) that uses cutting-edge AI vision to instantly digitize physical business cards.
 
-First, run the development server:
+## Features ✨
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Smart AI Extraction**: Upload or snap a photo of a business card, and Cardly uses Google's Gemini Vision AI to instantly extract names, job titles, companies, emails, and phone numbers.
+- **Geospatial Intelligence**: Cardly automatically infers latitude and longitude coordinates from the extracted address to provide an interactive, zoomed-in Google Map of the contact's location.
+- **Dynamic Classification Tags**: Automatically generates industry-specific keywords (e.g., "Enterprise AI", "Fintech") with consistent, hashed pastel colors.
+- **WhatsApp Detection**: AI vision detects if a phone number is linked to WhatsApp based on icons on the physical card, rendering a dynamic green WhatsApp chat button if found.
+- **Save to Phone Contacts**: Generates a standard `.vcf` vCard on the fly, allowing users to save the contact directly to their native iOS/Android address book with a single tap.
+- **Native App Intents**: Launch phone calls, open email clients, and send SMS messages using native OS links (`tel:`, `mailto:`, `sms:`).
+- **Pure JS Perspective Warping**: Fast, serverless-friendly image processing using a custom mathematical perspective transformation engine to handle rotated/skewed card photos.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech Stack 🛠️
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Framework**: [Next.js](https://nextjs.org/) (App Router)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Database / Auth**: [Supabase](https://supabase.com/) (PostgreSQL & Storage)
+- **AI / Vision**: [Google Gemini AI](https://ai.google.dev/)
+- **Icons**: [Lucide React](https://lucide.dev/)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Getting Started 🚀
 
-## Learn More
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/yourusername/cardly.git
+   cd cardly
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Set up Environment Variables:**
+   Create a `.env.local` file in the root directory and add your keys:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   GEMINI_API_KEY=your_gemini_api_key
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
 
-## Deploy on Vercel
+5. **Open your browser:**
+   Navigate to [http://localhost:3000](http://localhost:3000) to see the application.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Database Schema 🗄️
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Cardly relies on a simple, robust PostgreSQL schema to track scanned cards and their AI metadata. Ensure your Supabase instance has the following structure:
+- `cards` (id, user_id, full_name, company_name, designation, emails, phones, social_links, address, notes, original_image_path, ai_metadata)
+
+## License 📄
+
+This project is licensed under the MIT License.

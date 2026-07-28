@@ -1,0 +1,375 @@
+import {
+  ArrowLeft,
+  Edit2,
+  Trash2,
+  Phone,
+  Mail,
+  MessageSquare,
+  Link as LinkIcon,
+  Sparkles,
+  Maximize2,
+  AtSign,
+  MapPin,
+  Building2,
+  AlignLeft,
+  Smartphone,
+} from "lucide-react";
+import Link from "next/link";
+import { createClient } from "@/utils/supabase/server";
+import { notFound, redirect } from "next/navigation";
+import { TestButton } from "./TestButton";
+import { SaveContactButton } from "./SaveContactButton";
+
+export default async function ContactProfilePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const resolvedParams = await params;
+  const { id } = resolvedParams;
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: card } = await supabase
+    .from("cards")
+    .select("*")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!card) {
+    return notFound();
+  }
+
+  console.log({ card });
+
+  let imageUrl = null;
+  if (card.original_image_path) {
+    const { data: urlData } = await supabase.storage
+      .from("business-cards")
+      .createSignedUrl(card.original_image_path, 3600);
+    imageUrl = urlData?.signedUrl || null;
+  }
+  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(card.full_name || "Unknown")}&background=random&color=fff&size=150`;
+
+  const email = card.emails && card.emails.length > 0 ? card.emails[0] : null;
+  const phone = card.phones && card.phones.length > 0 ? card.phones[0] : null;
+  const addressText = (card.address as any)?.text || null;
+  const addressCoords = (card.address as any)?.coordinates || null;
+  const mapQuery = addressCoords
+    ? `${addressCoords.lat},${addressCoords.lng}`
+    : addressText;
+  const notes = card.notes || "No notes available.";
+
+  async function deleteContact() {
+    "use server";
+    const supabase = await createClient();
+    await supabase.from("cards").delete().eq("id", id);
+    redirect("/contacts");
+  }
+
+  return (
+    <div className="bg-slate-50 min-h-screen pb-24">
+      {/* Header */}
+      <div className="flex items-center justify-between p-6">
+        <Link
+          href="/contacts"
+          className="flex items-center gap-2 text-primary font-bold"
+        >
+          <ArrowLeft className="w-6 h-6" /> Cardly AI
+        </Link>
+        <div className="flex items-center gap-4 text-foreground">
+          {card.original_image_path && (
+            <TestButton
+              cardId={card.id}
+              originalPath={card.original_image_path}
+            />
+          )}
+          <button>
+            <Edit2 className="w-5 h-5" />
+          </button>
+          <form action={deleteContact}>
+            <button
+              type="submit"
+              className="text-red-500 hover:text-red-600 transition-colors"
+              title="Delete Contact"
+            >
+              <Trash2 className="w-5 h-5" />
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* Profile Info */}
+      <div className="flex flex-col items-center px-6 pt-2 pb-6">
+        <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-lg mb-4 bg-slate-200">
+          <img
+            src={avatarUrl}
+            alt={card.full_name || "Contact"}
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <h1 className="text-3xl font-extrabold text-[#0B1020] mb-1">
+          {card.full_name || "Unknown Contact"}
+        </h1>
+
+        {card.designation && (
+          <p className="text-lg text-primary font-medium text-center mb-3">
+            {card.designation}{" "}
+            {card.company_name ? `@ ${card.company_name}` : ""}
+          </p>
+        )}
+
+        {/* We can hide these tags or generate them dynamically later */}
+        <div className="flex flex-wrap justify-center gap-2 mb-3">
+          {((card.ai_metadata as any)?.tags || []).map((tag: string, index: number) => {
+            const hash = tag.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const tagColors = [
+              "bg-blue-100 text-blue-700",
+              "bg-emerald-100 text-emerald-700",
+              "bg-amber-100 text-amber-700",
+              "bg-violet-100 text-violet-700",
+              "bg-rose-100 text-rose-700",
+              "bg-cyan-100 text-cyan-700",
+            ];
+            const colorClass = tagColors[hash % tagColors.length];
+            return (
+              <span key={index} className={`px-3 py-1 text-xs font-semibold rounded-full ${colorClass}`}>
+                {tag}
+              </span>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="grid grid-cols-2 gap-3 px-6 mb-3">
+        <a 
+          href={phone ? `tel:${phone.replace(/[^0-9+]/g, '')}` : "#"} 
+          className={`flex flex-col items-center justify-center gap-2 py-3 bg-primary text-white rounded-xl shadow-sm transition-colors ${!phone ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-primary/90'}`}
+        >
+          <Phone className="w-5 h-5" />
+          <span className="text-xs font-medium">Call</span>
+        </a>
+        <a 
+          href={email ? `mailto:${email}` : "#"}
+          className={`flex flex-col items-center justify-center gap-2 py-3 bg-primary/10 text-primary rounded-xl shadow-sm transition-colors ${!email ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-primary/20'}`}
+        >
+          <Mail className="w-5 h-5" />
+          <span className="text-xs font-medium">Email</span>
+        </a>
+        {(() => {
+          const hasWhatsapp = (card.ai_metadata as any)?.has_whatsapp === true;
+          if (hasWhatsapp) {
+            return (
+              <a 
+                href={phone ? `https://wa.me/${phone.replace(/[^0-9+]/g, '')}` : "#"}
+                target="_blank" rel="noopener noreferrer"
+                className={`flex flex-col items-center justify-center gap-2 py-3 bg-[#25D366]/10 text-[#25D366] rounded-xl shadow-sm transition-colors ${!phone ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-[#25D366]/20'}`}
+              >
+                <MessageCircle className="w-5 h-5" />
+                <span className="text-xs font-medium">WhatsApp</span>
+              </a>
+            );
+          }
+          return (
+            <a 
+              href={phone ? `sms:${phone.replace(/[^0-9+]/g, '')}` : "#"}
+              className={`flex flex-col items-center justify-center gap-2 py-3 bg-primary/10 text-primary rounded-xl shadow-sm transition-colors ${!phone ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-primary/20'}`}
+            >
+              <MessageSquare className="w-5 h-5" />
+              <span className="text-xs font-medium">Message</span>
+            </a>
+          );
+        })()}
+        {(() => {
+          const linkedInUrl = (card.social_links as any)?.links?.find((link: string) => link.toLowerCase().includes('linkedin')) || (card.social_links as any)?.links?.[0];
+          return (
+            <a 
+              href={linkedInUrl || "#"}
+              target={linkedInUrl ? "_blank" : undefined}
+              rel={linkedInUrl ? "noopener noreferrer" : undefined}
+              className={`flex flex-col items-center justify-center gap-2 py-3 bg-white border border-border text-foreground rounded-xl shadow-sm transition-colors ${!linkedInUrl ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-slate-50'}`}
+            >
+              <LinkIcon className="w-5 h-5" />
+              <span className="text-xs font-medium">LinkedIn</span>
+            </a>
+          );
+        })()}
+      </div>
+
+      <div className="px-6 mb-6">
+        <SaveContactButton id={id} />
+      </div>
+
+      {/* AI Insights */}
+      <div className="px-6 mb-6">
+        <div className="bg-white border border-border rounded-2xl p-5 shadow-sm relative overflow-hidden">
+          <div className="flex items-center gap-2 text-secondary text-xs font-bold tracking-wider mb-3 uppercase">
+            <Sparkles className="w-4 h-4" /> AI Insights
+          </div>
+          <p className="text-sm text-foreground leading-relaxed mb-4">
+            {(card.ai_metadata as any)?.summary ||
+              "AI extraction complete. More insights will be available soon."}
+          </p>
+          {/* Static tags for now */}
+          <div className="flex gap-2">
+            <span className="px-2 py-1 bg-secondary/5 text-secondary border border-secondary/20 text-[10px] font-bold uppercase tracking-wider rounded flex items-center gap-1">
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4" />
+                <path d="M12 8h.01" />
+              </svg>{" "}
+              SCANNED
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Original Card */}
+      <div className="px-6 mb-6">
+        <div className="bg-white border border-border rounded-2xl p-4 shadow-sm">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
+              Original Card
+            </h3>
+            <button className="text-primary text-xs font-medium flex items-center gap-1 hover:underline">
+              Expand <Maximize2 className="w-3 h-3" />
+            </button>
+          </div>
+          <div className="w-full aspect-[16/9] bg-slate-200 rounded-lg overflow-hidden border border-border relative">
+            {imageUrl ? (
+              <img
+                src={imageUrl}
+                alt="Card"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm font-medium">
+                No Image Available
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Information Details */}
+      <div className="px-6 mb-6">
+        <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden">
+          <div className="p-4 border-b border-border bg-slate-50/50">
+            <h3 className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
+              Information Details
+            </h3>
+          </div>
+
+          <div className="divide-y divide-border">
+            <div className="p-4 flex gap-4">
+              <AtSign className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
+                  Email Address
+                </p>
+                <p className="font-medium text-foreground text-sm">
+                  {email || "Not provided"}
+                </p>
+                {email && (
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Primary
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="p-4 flex gap-4">
+              <Smartphone className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
+                  Phone Number
+                </p>
+                <p className="font-medium text-foreground text-sm">
+                  {phone || "Not provided"}
+                </p>
+                {phone && (
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Primary
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="p-4 flex gap-4">
+              <Building2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
+                  Company & Title
+                </p>
+                <p className="font-medium text-foreground text-sm">
+                  {card.company_name || "Not provided"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {card.designation || ""}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 flex gap-4">
+              <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
+                  Location
+                </p>
+                <p className="font-medium text-foreground text-sm leading-snug mb-3">
+                  {addressText || "Not provided"}
+                </p>
+
+                {addressText && (
+                  <div className="w-full h-48 bg-slate-100 rounded-lg overflow-hidden relative border border-border mt-2">
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src={`https://maps.google.com/maps?q=${encodeURIComponent(mapQuery)}&z=15&output=embed`}
+                      frameBorder="0"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      aria-hidden="false"
+                      tabIndex={0}
+                      title="Contact Location"
+                    ></iframe>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="p-4 flex gap-4">
+              <AlignLeft className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
+                  Notes
+                </p>
+                <p className="text-sm text-foreground italic leading-relaxed">
+                  {notes}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

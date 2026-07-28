@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cardly AI - All Contacts</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error": "#ffffff",
+                    "error": "#ba1a1a",
+                    "surface-tint": "#494bd6",
+                    "on-secondary-fixed-variant": "#5516be",
+                    "surface-container-high": "#dce9ff",
+                    "tertiary-fixed-dim": "#c1c5dc",
+                    "on-secondary-fixed": "#23005c",
+                    "on-secondary": "#ffffff",
+                    "on-background": "#0b1c30",
+                    "background": "#f8f9ff",
+                    "secondary-fixed": "#e9ddff",
+                    "surface-bright": "#f8f9ff",
+                    "secondary-container": "#8455ef",
+                    "primary-fixed": "#e1e0ff",
+                    "on-surface-variant": "#464554",
+                    "secondary": "#6b38d4",
+                    "tertiary": "#595e71",
+                    "inverse-surface": "#213145",
+                    "on-primary-container": "#fffbff",
+                    "outline": "#767586",
+                    "on-primary": "#ffffff",
+                    "primary": "#4648d4",
+                    "inverse-primary": "#c0c1ff",
+                    "on-primary-fixed-variant": "#2f2ebe",
+                    "surface-container": "#e5eeff",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed-variant": "#414658",
+                    "tertiary-container": "#72768a",
+                    "secondary-fixed-dim": "#d0bcff",
+                    "surface-container-highest": "#d3e4fe",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "surface-variant": "#d3e4fe",
+                    "on-tertiary-container": "#020413",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#dee1f9",
+                    "primary-fixed-dim": "#c0c1ff",
+                    "surface-dim": "#cbdbf5",
+                    "surface": "#f8f9ff",
+                    "on-surface": "#0b1c30",
+                    "on-secondary-container": "#fffbff",
+                    "on-tertiary-fixed": "#161b2b",
+                    "outline-variant": "#c7c4d7",
+                    "inverse-on-surface": "#eaf1ff",
+                    "primary-container": "#6063ee",
+                    "surface-container-low": "#eff4ff",
+                    "on-primary-fixed": "#07006c"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "4px",
+                    "margin-mobile": "16px",
+                    "stack-lg": "32px",
+                    "stack-sm": "8px",
+                    "stack-md": "16px",
+                    "margin-desktop": "40px",
+                    "container-max": "1280px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "label-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-md": ["Inter"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-sm": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9ff;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .swipe-container {
+            overflow-x: hidden;
+            position: relative;
+            touch-action: pan-y;
+        }
+        .swipe-content {
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .swipe-actions-left, .swipe-actions-right {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            z-index: 0;
+        }
+        .swipe-actions-right { right: 0; background-color: #ba1a1a; color: white; }
+        .swipe-actions-left { left: 0; background-color: #4648d4; color: white; }
+        
+        .contact-card-shadow {
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.05);
+        }
+
+        /* AI Glow Effect */
+        .ai-glow {
+            position: relative;
+        }
+        .ai-glow::after {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, #4648d4, #8455ef);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.2;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-40 bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline shadow-sm">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-stack-sm max-w-container-max mx-auto">
+<div class="flex items-center gap-stack-sm">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A clean professional studio headshot of a diverse young executive for a premium networking app. The background is a soft, out-of-focus modern office with cool blue and indigo ambient lighting. High-end professional aesthetic with crisp detail and natural skin tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDW94eI_VNwpkpr1e45jb75QodIpP6QmJbn1_VKdm2wZKGrjFqoukJ_q_YuQ0i_AHpowPgAxppKC64WhY_foHLeA0w6h8UWLmlR1RA4s1OWXMNJ05sjECsGluOC29I75tozwpUxiVrS7JdxDt8-H9wuCqXAg-n0Zs_9Y2QV34FxWkfddf7eaHt5iE0HyStN0cP0HiiHioT5YP-lp8GvkCK893BvtEvQ5_8raXee12EIN5yEUwzb93y4a7rtS6ORO5Np145Zed7DPgCO"/>
+</div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed">Cardly AI</h1>
+</div>
+<div class="flex items-center gap-stack-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low transition-colors p-2 rounded-full">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low transition-colors p-2 rounded-full md:hidden" onclick="toggleSearch()">search</button>
+</div>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop pb-32">
+<!-- Search and Filter Section -->
+<section class="mt-stack-lg space-y-stack-md">
+<div class="relative w-full max-w-2xl" id="searchContainer">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-12 pr-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md outline-none contact-card-shadow" placeholder="Search name, company, or detail..." type="text"/>
+</div>
+<div class="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+<button class="px-5 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md transition-all active:scale-95 shadow-sm">All</button>
+<button class="px-5 py-2 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high transition-all active:scale-95 border border-outline-variant/30">Recent</button>
+<button class="px-5 py-2 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high transition-all active:scale-95 border border-outline-variant/30">Company</button>
+<button class="px-5 py-2 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high transition-all active:scale-95 border border-outline-variant/30">Favorites</button>
+<button class="ml-auto p-2 rounded-full bg-surface-container-low text-primary hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+</section>
+<!-- Contacts List Header -->
+<div class="flex justify-between items-end mt-stack-lg mb-stack-sm px-1">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">Contacts</h2>
+<p class="font-label-sm text-label-sm text-outline">Sorted by: <span class="text-primary font-semibold cursor-pointer">Alphabetical</span></p>
+</div>
+<!-- Contacts List -->
+<div class="space-y-3 mt-4">
+<!-- Contact Card Template -->
+<div class="swipe-container rounded-xl contact-card-shadow bg-surface-container-lowest">
+<div class="swipe-actions-left rounded-l-xl"><span class="material-symbols-outlined">edit</span></div>
+<div class="swipe-actions-right rounded-r-xl"><span class="material-symbols-outlined">delete</span></div>
+<div class="swipe-content relative z-10 bg-surface-container-lowest p-4 flex items-center gap-4 cursor-pointer hover:bg-surface-container-low transition-colors rounded-xl border border-outline-variant/20" ontouchend="handleTouchEnd(event)" ontouchmove="handleTouchMove(event)" ontouchstart="handleTouchStart(event)">
+<div class="w-14 h-14 rounded-full bg-primary-fixed-dim flex items-center justify-center text-on-primary-fixed font-bold text-headline-sm shrink-0 border border-outline-variant/10">
+                        JS
+                    </div>
+<div class="flex-grow">
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface leading-tight">Jordan Smith</h3>
+<p class="font-label-md text-label-md text-on-surface-variant">Global Nexus Corp</p>
+<p class="font-label-sm text-label-sm text-outline">Lead Product Designer</p>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="material-symbols-outlined text-secondary-container" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-sm text-label-sm text-outline">2d ago</span>
+</div>
+</div>
+</div>
+<!-- Contact Card 2 -->
+<div class="swipe-container rounded-xl contact-card-shadow bg-surface-container-lowest">
+<div class="swipe-actions-left rounded-l-xl"><span class="material-symbols-outlined">edit</span></div>
+<div class="swipe-actions-right rounded-r-xl"><span class="material-symbols-outlined">delete</span></div>
+<div class="swipe-content relative z-10 bg-surface-container-lowest p-4 flex items-center gap-4 cursor-pointer hover:bg-surface-container-low transition-colors rounded-xl border border-outline-variant/20" ontouchend="handleTouchEnd(event)" ontouchmove="handleTouchMove(event)" ontouchstart="handleTouchStart(event)">
+<div class="w-14 h-14 rounded-full overflow-hidden shrink-0 border border-outline-variant/10">
+<img class="w-full h-full object-cover" data-alt="Close-up professional portrait of a tech entrepreneur for a corporate networking platform. The individual has an approachable, confident expression. Lighting is high-end studio style with a sophisticated deep indigo and soft violet background gradient, emphasizing a premium AI-driven brand aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCq1L5EDp-tlOfGS2XEJUoMbkUy2VsB-LmpOHJL8xJZjQFxkl4JNgoYqrS2VhAMiFxzVNCrCnr2NcYlYXzrnnf-nnB1oI8w9SsadzZZ4hQx0mTjs0uq1_CJP57DJ4IkC7CKAwf5LkUU0OohyhaymHbzcq5zBeN14zX3u4_2dcitZ-J_TPX10et2h9WLbVf8orAMmczNHy_OgAqKk6qbIIMBAf94tkmiUg_j7AuC9Gq9-l7NPrpCU-_hMq5r09srEKgAAzi5naTOUvT"/>
+</div>
+<div class="flex-grow">
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface leading-tight">Sarah Chen</h3>
+<p class="font-label-md text-label-md text-on-surface-variant">TechnoVate Systems</p>
+<p class="font-label-sm text-label-sm text-outline">Chief Technology Officer</p>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="material-symbols-outlined text-outline">star</span>
+<span class="font-label-sm text-label-sm text-outline">5d ago</span>
+</div>
+</div>
+</div>
+<!-- AI Insight Card (Asymmetric Layout / Bento feel) -->
+<div class="ai-glow rounded-xl p-6 bg-gradient-to-br from-primary/5 to-secondary/5 border border-primary/20 mt-8 mb-8">
+<div class="flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-secondary text-lg" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="font-label-sm text-label-sm font-bold text-secondary uppercase tracking-wider">AI Recommendation</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-2">Reconnect with Alex</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">It's been 3 months since your last interaction. Alex recently updated their profile to "VP of Growth".</p>
+<div class="flex gap-3">
+<button class="bg-secondary text-on-secondary px-4 py-2 rounded-lg font-label-md text-label-md shadow-lg shadow-secondary/20 hover:scale-105 transition-transform">Message Now</button>
+<button class="bg-surface-container-lowest text-primary border border-primary/30 px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-white transition-colors">Later</button>
+</div>
+</div>
+<!-- Contact Card 3 -->
+<div class="swipe-container rounded-xl contact-card-shadow bg-surface-container-lowest">
+<div class="swipe-actions-left rounded-l-xl"><span class="material-symbols-outlined">edit</span></div>
+<div class="swipe-actions-right rounded-r-xl"><span class="material-symbols-outlined">delete</span></div>
+<div class="swipe-content relative z-10 bg-surface-container-lowest p-4 flex items-center gap-4 cursor-pointer hover:bg-surface-container-low transition-colors rounded-xl border border-outline-variant/20" ontouchend="handleTouchEnd(event)" ontouchmove="handleTouchMove(event)" ontouchstart="handleTouchStart(event)">
+<div class="w-14 h-14 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container font-bold text-headline-sm shrink-0 border border-outline-variant/10">
+                        MB
+                    </div>
+<div class="flex-grow">
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface leading-tight">Marcus Brown</h3>
+<p class="font-label-md text-label-md text-on-surface-variant">Elevate Ventures</p>
+<p class="font-label-sm text-label-sm text-outline">Venture Partner</p>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="material-symbols-outlined text-outline">star</span>
+<span class="font-label-sm text-label-sm text-outline">1w ago</span>
+</div>
+</div>
+</div>
+<!-- Contact Card 4 -->
+<div class="swipe-container rounded-xl contact-card-shadow bg-surface-container-lowest">
+<div class="swipe-actions-left rounded-l-xl"><span class="material-symbols-outlined">edit</span></div>
+<div class="swipe-actions-right rounded-r-xl"><span class="material-symbols-outlined">delete</span></div>
+<div class="swipe-content relative z-10 bg-surface-container-lowest p-4 flex items-center gap-4 cursor-pointer hover:bg-surface-container-low transition-colors rounded-xl border border-outline-variant/20" ontouchend="handleTouchEnd(event)" ontouchmove="handleTouchMove(event)" ontouchstart="handleTouchStart(event)">
+<div class="w-14 h-14 rounded-full overflow-hidden shrink-0 border border-outline-variant/10">
+<img class="w-full h-full object-cover" data-alt="A cinematic, high-quality business headshot of a female marketing director. She is wearing professional attire against a blurred minimalist architectural background with a clean, tech-forward color palette of whites and soft indigos. The image projects expertise, authority, and modern sophistication." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCp3dQ1F_CugL_re-YTCHoak2N493gYztXQIUcfkzvgdpulSejd96MbMnwUBhaLQlxeKEIl0SotFVndeDOUYBnr1ImK6ZQK1pm6fyUXLSwXUGEUhtbYCs1kCiBhurUnuyNmLdvZARPFcWNciH1fZWicROuYlkm8oEcxy1vY3_T25PjivSRKne5FJn0mlxCm8F3YHJ3T8JlxMxK-F5fTHHt8qPZQI9Gp-XYhqo2TRbbtXt-AuJRO9XfkDpBzdvgGlXp150y2dMjxa2o-"/>
+</div>
+<div class="flex-grow">
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface leading-tight">Elena Rodriguez</h3>
+<p class="font-label-md text-label-md text-on-surface-variant">Lumina Marketing</p>
+<p class="font-label-sm text-label-sm text-outline">Creative Director</p>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="material-symbols-outlined text-secondary-container" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-sm text-label-sm text-outline">2w ago</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB for adding contact (Contextual) -->
+<button class="fixed right-6 bottom-24 w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center transition-transform active:scale-90 z-50">
+<span class="material-symbols-outlined text-3xl">person_add</span>
+</button>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface dark:bg-surface-container-lowest border-t border-outline-variant dark:border-outline shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+<div class="flex justify-around items-center h-16 w-full px-base pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant px-4 py-1 hover:text-primary dark:hover:text-primary-fixed transition-all transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-sm text-label-sm">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full px-4 py-1 transition-all transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined">contacts</span>
+<span class="font-label-sm text-label-sm">Contacts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant px-4 py-1 hover:text-primary dark:hover:text-primary-fixed transition-all transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined">add_a_photo</span>
+<span class="font-label-sm text-label-sm">Scan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant px-4 py-1 hover:text-primary dark:hover:text-primary-fixed transition-all transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="font-label-sm text-label-sm">Search</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant px-4 py-1 hover:text-primary dark:hover:text-primary-fixed transition-all transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-sm text-label-sm">Settings</span>
+</a>
+</div>
+</nav>
+<script>
+        // Micro-interaction for Swipe Actions
+        let startX = 0;
+        let currentTranslate = 0;
+        let isDragging = false;
+        let currentElement = null;
+
+        function handleTouchStart(e) {
+            startX = e.touches[0].clientX;
+            currentElement = e.currentTarget;
+            isDragging = true;
+            currentElement.style.transition = 'none';
+        }
+
+        function handleTouchMove(e) {
+            if (!isDragging) return;
+            const currentX = e.touches[0].clientX;
+            const diff = currentX - startX;
+            
+            // Limit the swipe distance
+            if (Math.abs(diff) < 100) {
+                currentTranslate = diff;
+                currentElement.style.transform = `translateX(${currentTranslate}px)`;
+            }
+        }
+
+        function handleTouchEnd() {
+            if (!isDragging) return;
+            isDragging = false;
+            currentElement.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
+            
+            if (currentTranslate > 60) {
+                // Keep it open to the right (Show edit)
+                currentElement.style.transform = `translateX(80px)`;
+            } else if (currentTranslate < -60) {
+                // Keep it open to the left (Show delete)
+                currentElement.style.transform = `translateX(-80px)`;
+            } else {
+                // Snap back
+                currentElement.style.transform = `translateX(0px)`;
+            }
+            currentTranslate = 0;
+        }
+
+        // Search Toggle Logic for Mobile
+        function toggleSearch() {
+            const search = document.getElementById('searchContainer');
+            search.classList.toggle('hidden');
+        }
+
+        // Adding smooth reveal for list items
+        document.addEventListener('DOMContentLoaded', () => {
+            const items = document.querySelectorAll('.swipe-container');
+            items.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(10px)';
+                setTimeout(() => {
+                    item.style.transition = 'all 0.4s ease-out';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, 50 * index);
+            });
+        });
+    </script>
+</body></html>

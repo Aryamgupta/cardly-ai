@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cardly AI - Scanning Experience</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b1c30; /* Deep Dark for Immersive Scan */
+            color: #ffffff;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Glassmorphism utility */
+        .glass-panel {
+            background: rgba(21, 27, 46, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* AI Glow Animation */
+        @keyframes scanline {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .scan-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #8455ef, #c0c1ff, #8455ef, transparent);
+            box-shadow: 0 0 20px 4px rgba(132, 85, 239, 0.6);
+            position: absolute;
+            width: 100%;
+            z-index: 20;
+            animation: scanline 3s ease-in-out infinite;
+        }
+
+        /* Shimmer Effect for AI Status */
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .ai-shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        .ai-shimmer::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(132, 85, 239, 0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        /* Floating Label Entry */
+        @keyframes popUp {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .tag-pop {
+            animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Viewfinder corners */
+        .corner {
+            width: 32px;
+            height: 32px;
+            border-color: #8455ef;
+            position: absolute;
+            z-index: 30;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#494bd6",
+                        "on-secondary-fixed-variant": "#5516be",
+                        "surface-container-high": "#dce9ff",
+                        "tertiary-fixed-dim": "#c1c5dc",
+                        "on-secondary-fixed": "#23005c",
+                        "on-secondary": "#ffffff",
+                        "on-background": "#0b1c30",
+                        "background": "#f8f9ff",
+                        "secondary-fixed": "#e9ddff",
+                        "surface-bright": "#f8f9ff",
+                        "secondary-container": "#8455ef",
+                        "primary-fixed": "#e1e0ff",
+                        "on-surface-variant": "#464554",
+                        "secondary": "#6b38d4",
+                        "tertiary": "#595e71",
+                        "inverse-surface": "#213145",
+                        "on-primary-container": "#fffbff",
+                        "outline": "#767586",
+                        "on-primary": "#ffffff",
+                        "primary": "#4648d4",
+                        "inverse-primary": "#c0c1ff",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "surface-container": "#e5eeff",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#414658",
+                        "tertiary-container": "#72768a",
+                        "secondary-fixed-dim": "#d0bcff",
+                        "surface-container-highest": "#d3e4fe",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#d3e4fe",
+                        "on-tertiary-container": "#020413",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#dee1f9",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "surface-dim": "#cbdbf5",
+                        "surface": "#f8f9ff",
+                        "on-surface": "#0b1c30",
+                        "on-secondary-container": "#fffbff",
+                        "on-tertiary-fixed": "#161b2b",
+                        "outline-variant": "#c7c4d7",
+                        "inverse-on-surface": "#eaf1ff",
+                        "primary-container": "#6063ee",
+                        "surface-container-low": "#eff4ff",
+                        "on-primary-fixed": "#07006c"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "margin-mobile": "16px",
+                        "stack-lg": "32px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "margin-desktop": "40px",
+                        "container-max": "1280px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-on-background h-screen flex flex-col overflow-hidden">
+<!-- Top App Bar (From Shared Components) -->
+<header class="w-full top-0 sticky z-50 bg-transparent">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-stack-sm max-w-container-max mx-auto">
+<div class="flex items-center gap-stack-sm">
+<button class="p-2 rounded-full hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-white">arrow_back</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm font-bold text-white">Scan Business Card</h1>
+</div>
+<div class="flex items-center gap-stack-md">
+<span class="material-symbols-outlined text-secondary-fixed-dim" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="font-label-sm text-label-sm text-secondary-fixed-dim uppercase tracking-widest">AI Vision Active</span>
+</div>
+</div>
+</header>
+<!-- Main Viewfinder Area -->
+<main class="flex-1 relative flex items-center justify-center p-margin-mobile md:p-margin-desktop">
+<!-- Background Animation Overlay -->
+
+<!-- Camera Viewfinder Container -->
+<div class="relative w-full max-w-[500px] aspect-[1.75/1] rounded-xl overflow-hidden shadow-2xl border border-white/5 bg-slate-900 group">
+<!-- The Card Image Placeholder -->
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="A professional high-contrast business card for a technology executive laying on a dark slate surface. The card is white with minimalist dark navy typography, featuring a clean logo of a stylized 'C' and clear text fields. The lighting is dramatic, with a spotlight focus on the card's surface, reflecting a premium corporate aesthetic with sharp edges and sophisticated shadows." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB9xPWwCU0jeCeskIhFgkOygd0ia0atr7zT-M1bHBFcbhsqpZPHDOrlDAObY5BaphrzO7xXS54RoxCq4wyDZDTmUDRs9Z_4sisBnhql8BXsPscUThkDdSeLe9O4jjTEdJnMVP4LdFI4_hjht1Kt3OOM0NJDJoGCScVET1njs0zHzEWuH9b2kAJvhHLic3Z1XVX0ZsQQdAA8SOV1ba1eZqI4PaFBi_IG7czPVxA14sJi5V5rwbesjNFubrbxODp2S168GjR2rUej2mqI')">
+</div>
+<!-- Viewfinder Corners -->
+<div class="corner top-0 left-0 border-t-4 border-l-4 rounded-tl-lg"></div>
+<div class="corner top-0 right-0 border-t-4 border-r-4 rounded-tr-lg"></div>
+<div class="corner bottom-0 left-0 border-b-4 border-l-4 rounded-bl-lg"></div>
+<div class="corner bottom-0 right-0 border-b-4 border-r-4 rounded-br-lg"></div>
+<!-- AI Scanning Line -->
+<div class="scan-line"></div>
+<!-- Dynamic UI Labels popping up -->
+<div class="absolute inset-0 pointer-events-none" id="ai-labels">
+<!-- Example Dynamic Tags (controlled by script) -->
+<div class="tag-pop absolute top-[20%] left-[15%] glass-panel px-3 py-1 rounded-full border-secondary-container flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-secondary-fixed-dim" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="text-white font-label-sm text-[10px] uppercase">Name Detected</span>
+</div>
+<div class="tag-pop absolute top-[45%] left-[25%] glass-panel px-3 py-1 rounded-full border-secondary-container flex items-center gap-1" style="animation-delay: 0.5s;">
+<span class="material-symbols-outlined text-[14px] text-secondary-fixed-dim" style="font-variation-settings: 'FILL' 1;">mail</span>
+<span class="text-white font-label-sm text-[10px] uppercase">Email Found</span>
+</div>
+<div class="tag-pop absolute top-[30%] right-[10%] glass-panel px-3 py-1 rounded-full border-secondary-container flex items-center gap-1" style="animation-delay: 1.2s;">
+<span class="material-symbols-outlined text-[14px] text-secondary-fixed-dim" style="font-variation-settings: 'FILL' 1;">business</span>
+<span class="text-white font-label-sm text-[10px] uppercase">Company identified: TechCorp</span>
+</div>
+</div>
+<!-- Focus Brackets (Central) -->
+<div class="absolute inset-0 flex items-center justify-center opacity-20">
+<div class="w-16 h-16 border border-white/40 rounded-full"></div>
+</div>
+</div>
+<!-- Overlay Instructions -->
+<div class="absolute bottom-10 left-0 right-0 flex flex-col items-center gap-stack-md text-center px-margin-mobile">
+<div class="glass-panel px-stack-lg py-stack-md rounded-2xl max-w-md w-full border-white/10 ai-shimmer">
+<div class="font-body-md text-body-md text-secondary-fixed-dim transition-all duration-300" id="status-text">
+                    Analyzing card structure...
+                </div>
+<div class="w-full bg-white/10 h-1 rounded-full mt-stack-sm overflow-hidden">
+<div class="h-full bg-secondary transition-all duration-500 ease-out" id="progress-bar" style="width: 35%"></div>
+</div>
+</div>
+<p class="font-label-md text-label-md text-outline-variant max-w-xs">
+                Position the card within the frame for optimal OCR precision.
+            </p>
+</div>
+</main>
+<!-- Scanning Controls Footer -->
+<footer class="w-full relative py-stack-lg bg-on-background/80 backdrop-blur-md">
+<div class="flex justify-around items-center max-w-md mx-auto px-margin-mobile">
+<button class="flex flex-col items-center gap-1 group">
+<div class="w-12 h-12 flex items-center justify-center rounded-full bg-white/5 border border-white/10 group-hover:bg-white/10 transition-all">
+<span class="material-symbols-outlined text-white">close</span>
+</div>
+<span class="font-label-sm text-label-sm text-white/60">Cancel</span>
+</button>
+<!-- Shutter Button -->
+<button class="relative p-1 rounded-full bg-white/20 border-2 border-white/40 hover:scale-105 active:scale-95 transition-all">
+<div class="w-16 h-16 bg-white rounded-full flex items-center justify-center">
+<div class="w-14 h-14 border-2 border-on-background/20 rounded-full"></div>
+</div>
+<!-- Shutter Glow -->
+<div class="absolute inset-0 bg-secondary rounded-full blur-xl opacity-20 -z-10"></div>
+</button>
+<button class="flex flex-col items-center gap-1 group">
+<div class="w-12 h-12 flex items-center justify-center rounded-full bg-white/5 border border-white/10 group-hover:bg-white/10 transition-all">
+<span class="material-symbols-outlined text-white">image</span>
+</div>
+<span class="font-label-sm text-label-sm text-white/60">Gallery</span>
+</button>
+</div>
+</footer>
+<!-- Bottom Nav Bar (Shared Component Logic - Suppressed because transactional task) -->
+<!-- Not rendering BottomNavBar here per instruction: "The screen shows the viewfinder... Task-Focused" -->
+<script>
+        // AI Status Simulation
+        const statuses = [
+            "Analyzing card structure...",
+            "Detecting language...",
+            "Extracting contact info...",
+            "Mapping social profiles...",
+            "Verifying company data...",
+            "Ready for review."
+        ];
+        
+        let statusIdx = 0;
+        const statusElement = document.getElementById('status-text');
+        const progressBar = document.getElementById('progress-bar');
+        const labelContainer = document.getElementById('ai-labels');
+
+        function updateAIStatus() {
+            statusIdx = (statusIdx + 1) % statuses.length;
+            statusElement.style.opacity = 0;
+            
+            setTimeout(() => {
+                statusElement.innerText = statuses[statusIdx];
+                statusElement.style.opacity = 1;
+                
+                // Update progress bar
+                const progress = ((statusIdx + 1) / statuses.length) * 100;
+                progressBar.style.width = `${progress}%`;
+
+                // Add random pop tags
+                if (statusIdx < 4) {
+                    createNewTag();
+                }
+            }, 300);
+        }
+
+        function createNewTag() {
+            const types = [
+                { icon: 'phone', label: 'Phone Extracted' },
+                { icon: 'link', label: 'URL Found' },
+                { icon: 'pin_drop', label: 'Address Parsed' },
+                { icon: 'share', label: 'LinkedIn Profile' }
+            ];
+            const type = types[Math.floor(Math.random() * types.length)];
+            
+            const tag = document.createElement('div');
+            tag.className = 'tag-pop absolute glass-panel px-3 py-1 rounded-full border-secondary-container flex items-center gap-1';
+            tag.style.top = `${Math.random() * 60 + 20}%`;
+            tag.style.left = `${Math.random() * 60 + 10}%`;
+            tag.innerHTML = `
+                <span class="material-symbols-outlined text-[14px] text-secondary-fixed-dim" style="font-variation-settings: 'FILL' 1;">${type.icon}</span>
+                <span class="text-white font-label-sm text-[10px] uppercase">${type.label}</span>
+            `;
+            
+            labelContainer.appendChild(tag);
+            
+            // Limit tags on screen
+            if (labelContainer.children.length > 6) {
+                labelContainer.removeChild(labelContainer.firstChild);
+            }
+        }
+
+        setInterval(updateAIStatus, 3000);
+
+        // Subtle parallax on card hover for high-end feel
+        const container = document.querySelector('.group');
+        container.addEventListener('mousemove', (e) => {
+            const rect = container.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width - 0.5;
+            const y = (e.clientY - rect.top) / rect.height - 0.5;
+            container.style.transform = `perspective(1000px) rotateX(${y * 10}deg) rotateY(${-x * 10}deg)`;
+        });
+
+        container.addEventListener('mouseleave', () => {
+            container.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+        });
+    </script>
+</body></html>
