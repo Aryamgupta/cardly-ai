@@ -42,10 +42,21 @@ export async function signIn(formData: FormData) {
     return { error: "Email and password are required" };
   }
 
-  const { error } = await supabase.auth.signInWithPassword({
+  let { error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
+
+  // Supabase SSR auto-refresh bug: if a stale session exists, signInWithPassword might fail
+  // with an "Invalid Refresh Token" error because it attempts to refresh the old session first.
+  // The first failure clears the stale local state, so a second attempt succeeds.
+  if (error && error.message.includes("Refresh Token")) {
+    const retry = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    error = retry.error;
+  }
 
   if (error) {
     return { error: error.message };
