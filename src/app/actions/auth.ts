@@ -26,7 +26,7 @@ export async function signUp(formData: FormData) {
     },
   });
 
-  console.log({error})
+  console.log({ error })
 
   if (error) {
     let errorMessage = error.message;
@@ -88,11 +88,11 @@ export async function resetPassword(formData: FormData) {
   if (!email) {
     return { error: "Email is required" };
   }
-
   // Determine base URL dynamically (e.g. localhost for dev, production URL for prod)
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   const redirectTo = `${baseUrl}/auth/callback?next=/update-password`;
 
+  console.log({ baseUrl, redirectTo })
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo,
   });
