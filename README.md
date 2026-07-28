@@ -9,8 +9,20 @@ Cardly AI is a modern, mobile-first Progressive Web Application (PWA) that uses 
 - **Dynamic Classification Tags**: Automatically generates industry-specific keywords (e.g., "Enterprise AI", "Fintech") with consistent, hashed pastel colors.
 - **WhatsApp Detection**: AI vision detects if a phone number is linked to WhatsApp based on icons on the physical card, rendering a dynamic green WhatsApp chat button if found.
 - **Save to Phone Contacts**: Generates a standard `.vcf` vCard on the fly, allowing users to save the contact directly to their native iOS/Android address book with a single tap.
-- **Native App Intents**: Launch phone calls, open email clients, and send SMS messages using native OS links (`tel:`, `mailto:`, `sms:`).
-- **Pure JS Perspective Warping**: Fast, serverless-friendly image processing using a custom mathematical perspective transformation engine to handle rotated/skewed card photos.
+- **Secure Authentication & Session Management**: Built-in Supabase SSR Auth with secure PKCE callback flows, email verification, and password reset functionalities.
+- **Editable Contact Profiles**: Interactive profile view allowing users to manually update AI-extracted fields and add custom, auto-saving notes.
+- **Responsive & Dynamic UI**: Beautiful glassmorphism UI optimized for all devices, from mobile phones to ultra-wide desktop monitors, featuring ambient background glow and sticky scroll views.
+
+## Supabase Email Templates 📧
+
+We have included pre-designed, branded HTML email templates for all major Supabase Auth operations. You can find them in the `supabase/email-templates` directory:
+
+1. `confirm-signup.html` - Triggered when a new user signs up.
+2. `reset-password.html` - Triggered when a user requests a password reset link.
+3. `magic-link.html` - Triggered for passwordless sign-in (OTP).
+4. `change-email.html` - Triggered when a user updates their email address.
+
+To use them, simply copy the HTML from these files and paste them into your Supabase Dashboard under **Authentication -> Email Templates**. They automatically use an embedded Base64 version of the Cardly logo so it bypasses external image blockers!
 
 ## Tech Stack 🛠️
 

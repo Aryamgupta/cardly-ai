@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Confirm your new email address</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 0; color: #0f172a; }
+    .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden; }
+    .header { background-color: #0B1020; padding: 32px 40px; text-align: center; }
+    .header img { width: 48px; height: 48px; margin-bottom: 12px; }
+    .header h1 { color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; }
+    .content { padding: 40px; }
+    .content p { font-size: 16px; line-height: 1.6; margin: 0 0 24px 0; color: #334155; }
+    .button-container { text-align: center; margin: 32px 0; }
+    .button { background-color: #5551FF; color: #ffffff !important; font-weight: 600; font-size: 16px; text-decoration: none; padding: 14px 32px; border-radius: 8px; display: inline-block; }
+    .footer { background-color: #f8fafc; padding: 24px 40px; text-align: center; border-top: 1px solid #e2e8f0; }
+    .footer p { font-size: 14px; color: #64748b; margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAyNCAxMDI0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiIHJ4PSIyMjAiIGZpbGw9IiMwQjEwMjAiLz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iaWNvbl9ncmFkIiB4MT0iMjAwIiB5MT0iMjAwIiB4Mj0iODI0IiB5Mj0iODI0IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiM2MzY2RjEiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjOEI1Q0Y2Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0iZ2xvdyIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSI+CiAgICAgIDxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjIwIiByZXN1bHQ9ImJsdXIiLz4KICAgICAgPGZlQ29tcG9zaXRlIGluPSJTb3VyY2VHcmFwaGljIiBpbjI9ImJsdXIiIG9wZXJhdG9yPSJvdmVyIi8+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CiAgPHJlY3QgeD0iMjEyIiB5PSIzMTIiIHdpZHRoPSI2MDAiIGhlaWdodD0iNDAwIiByeD0iNDAiIGZpbGw9InVybCgjaWNvbl9ncmFkKSIgZmlsbC1vcGFjaXR5PSIwLjEiIHN0cm9rZT0idXJsKCNpY29uX2dyYWQpIiBzdHJva2Utd2lkdGg9IjQwIi8+CiAgPHBhdGggZD0iTTUxMiAzNjJMNTQyIDQ4Mkw2NjIgNTEyTDU0MiA1NDJMNTEy NjYyTDQ4MiA1NDJMMzYyIDUxMkw0ODIgNDgyTDUxMiAzNjJaIiBmaWxsPSJ1cmwoI2ljb25fZ3JhZCkiIGZpbHRlcj0idXJsKCNnbG93KSIvPgogIDxjaXJjbGUgY3g9IjUxMiIgY3k9IjUxMiIgcj0iNjAiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLW9wYWNpdHk9IjAuNSIvPgo8L3N2Zz4=" alt="Cardly Logo">
+      <h1>Cardly AI</h1>
+    </div>
+    
+    <div class="content">
+      <p>Hi there,</p>
+      <p>You recently requested to change the email address for your Cardly AI account. To confirm this change, please click the button below.</p>
+      
+      <div class="button-container">
+        <a href="{{ .ConfirmationURL }}" class="button">Confirm new email</a>
+      </div>
+      
+      <p>If you didn't request this change, you can safely ignore this email and your address will not be updated.</p>
+    </div>
+    
+    <div class="footer">
+      <p>&copy; 2026 Cardly AI. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>

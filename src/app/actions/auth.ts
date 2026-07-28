@@ -26,10 +26,13 @@ export async function signUp(formData: FormData) {
     },
   });
 
+  console.log({error})
+
   if (error) {
     let errorMessage = error.message;
-    if (typeof errorMessage === 'object' || errorMessage === "{}") {
-      errorMessage = "An error occurred during sign up. Please try again.";
+    // Handle Supabase 500 rate limit errors or empty object stringification
+    if (typeof errorMessage === 'object' || errorMessage === "{}" || (error as any).status === 500) {
+      errorMessage = "Server is busy or email limit reached. Please try again later.";
     }
     return { error: errorMessage || "Failed to sign up" };
   }
