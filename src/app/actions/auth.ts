@@ -19,6 +19,7 @@ export async function signUp(formData: FormData) {
     email,
     password,
     options: {
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/auth/callback`,
       data: {
         full_name: name,
       },
@@ -26,7 +27,11 @@ export async function signUp(formData: FormData) {
   });
 
   if (error) {
-    return { error: error.message };
+    let errorMessage = error.message;
+    if (typeof errorMessage === 'object' || errorMessage === "{}") {
+      errorMessage = "An error occurred during sign up. Please try again.";
+    }
+    return { error: errorMessage || "Failed to sign up" };
   }
 
   return { success: true };
