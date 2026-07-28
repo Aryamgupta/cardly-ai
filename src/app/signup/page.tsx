@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Loader2, AlertCircle, ArrowLeft } from "lucide-react";
+import { ArrowRight, Loader2, AlertCircle, ArrowLeft, MailCheck } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { signUp } from "@/app/actions/auth";
 import { useState, useTransition } from "react";
 
 export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   async function onSubmit(formData: FormData) {
@@ -16,6 +17,8 @@ export default function SignupPage() {
       const result = await signUp(formData);
       if (result?.error) {
         setError(result.error);
+      } else if (result?.success) {
+        setSuccess(true);
       }
     });
   }
@@ -29,13 +32,35 @@ export default function SignupPage() {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center flex flex-col items-center space-y-4">
           <Logo className="w-16 h-16" />
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-white">Create an account</h1>
-            <p className="text-muted-foreground text-sm">Join Cardly to start building your smart CRM</p>
-          </div>
+          {!success && (
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold text-white">Create an account</h1>
+              <p className="text-muted-foreground text-sm">Join Cardly to start building your smart CRM</p>
+            </div>
+          )}
         </div>
 
-        <form action={onSubmit} className="space-y-4 mt-8">
+        {success ? (
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center space-y-4 mt-8">
+            <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-2">
+              <MailCheck className="w-8 h-8 text-primary" />
+            </div>
+            <h2 className="text-xl font-bold text-white">Check your email</h2>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              We've sent a verification link to your email address. Please verify your account before signing in.
+            </p>
+            <div className="pt-4">
+              <Link 
+                href="/login"
+                className="inline-flex items-center justify-center gap-2 w-full py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors"
+              >
+                Go to Login <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <>
+            <form action={onSubmit} className="space-y-4 mt-8">
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg flex items-center gap-2 text-sm">
               <AlertCircle className="w-4 h-4 shrink-0" />
@@ -89,11 +114,13 @@ export default function SignupPage() {
               <>Create Account <ArrowRight className="w-4 h-4" /></>
             )}
           </button>
-        </form>
+            </form>
 
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          Already have an account? <Link href="/login" className="text-white hover:underline font-medium">Sign in</Link>
-        </p>
+            <p className="text-center text-sm text-muted-foreground mt-6">
+              Already have an account? <Link href="/login" className="text-white hover:underline font-medium">Sign in</Link>
+            </p>
+          </>
+        )}
       </div>
     </div>
   );
