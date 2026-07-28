@@ -92,8 +92,8 @@ export async function POST(request: NextRequest) {
     for (let i = 0; i < n; i++) {
         let maxRow = i;
         for (let j = i + 1; j < n; j++) if (Math.abs(A[j][i]) > Math.abs(A[maxRow][i])) maxRow = j;
-        const tempA = A[i]; A[i] = A[maxRow]; A[maxRow] = tempA;
-        const tempB = B[i]; B[i] = B[maxRow]; B[maxRow] = tempB;
+        const tempA: number[] = A[i]; A[i] = A[maxRow]; A[maxRow] = tempA;
+        const tempB: number = B[i]; B[i] = B[maxRow]; B[maxRow] = tempB;
         for (let j = i + 1; j < n; j++) {
             const c = -A[j][i] / A[i][i];
             for (let k = i; k < n; k++) if (i === k) A[j][k] = 0; else A[j][k] += c * A[i][k];

@@ -13,6 +13,7 @@ import {
   Building2,
   AlignLeft,
   Smartphone,
+  MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
@@ -151,14 +152,14 @@ export default async function ContactProfilePage({
 
       {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-3 px-6 mb-3">
-        <a 
-          href={phone ? `tel:${phone.replace(/[^0-9+]/g, '')}` : "#"} 
+        <a
+          href={phone ? `tel:${phone.replace(/[^0-9+]/g, '')}` : "#"}
           className={`flex flex-col items-center justify-center gap-2 py-3 bg-primary text-white rounded-xl shadow-sm transition-colors ${!phone ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-primary/90'}`}
         >
           <Phone className="w-5 h-5" />
           <span className="text-xs font-medium">Call</span>
         </a>
-        <a 
+        <a
           href={email ? `mailto:${email}` : "#"}
           className={`flex flex-col items-center justify-center gap-2 py-3 bg-primary/10 text-primary rounded-xl shadow-sm transition-colors ${!email ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-primary/20'}`}
         >
@@ -169,7 +170,7 @@ export default async function ContactProfilePage({
           const hasWhatsapp = (card.ai_metadata as any)?.has_whatsapp === true;
           if (hasWhatsapp) {
             return (
-              <a 
+              <a
                 href={phone ? `https://wa.me/${phone.replace(/[^0-9+]/g, '')}` : "#"}
                 target="_blank" rel="noopener noreferrer"
                 className={`flex flex-col items-center justify-center gap-2 py-3 bg-[#25D366]/10 text-[#25D366] rounded-xl shadow-sm transition-colors ${!phone ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-[#25D366]/20'}`}
@@ -180,7 +181,7 @@ export default async function ContactProfilePage({
             );
           }
           return (
-            <a 
+            <a
               href={phone ? `sms:${phone.replace(/[^0-9+]/g, '')}` : "#"}
               className={`flex flex-col items-center justify-center gap-2 py-3 bg-primary/10 text-primary rounded-xl shadow-sm transition-colors ${!phone ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-primary/20'}`}
             >
@@ -192,7 +193,7 @@ export default async function ContactProfilePage({
         {(() => {
           const linkedInUrl = (card.social_links as any)?.links?.find((link: string) => link.toLowerCase().includes('linkedin')) || (card.social_links as any)?.links?.[0];
           return (
-            <a 
+            <a
               href={linkedInUrl || "#"}
               target={linkedInUrl ? "_blank" : undefined}
               rel={linkedInUrl ? "noopener noreferrer" : undefined}
