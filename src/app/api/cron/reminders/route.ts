@@ -45,6 +45,15 @@ export async function GET(request: Request) {
       return acc;
     }, {} as Record<string, typeof followUps>);
 
+    // OPTIMIZED: Bulk-fetch all profiles in ONE query instead of N queries in the loop
+    const userIds = Object.keys(groupedByUser);
+    const { data: profiles } = await supabaseAdmin
+      .from('profiles')
+      .select('id, email_notifications')
+      .in('id', userIds);
+
+    const profileMap = new Map((profiles || []).map((p) => [p.id, p]));
+
     let emailsSent = 0;
 
     // Fetch user emails and send reminders
@@ -56,6 +65,12 @@ export async function GET(request: Request) {
       if (userError || !user?.email) {
         console.error(`Could not fetch user ${userId}`, userError);
         continue;
+      }
+
+      // Check email notifications setting via bulk-fetched profileMap (no extra DB call)
+      const profile = profileMap.get(userId);
+      if (profile && profile.email_notifications === false) {
+        continue; // Skip this user
       }
 
       // Format the email content

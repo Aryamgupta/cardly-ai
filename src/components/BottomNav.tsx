@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Camera, Search, Settings } from "lucide-react";
+import { LayoutDashboard, Users, Camera, MessageSquare, Settings } from "lucide-react";
 
 export function BottomNav() {
   const pathname = usePathname() || "";
@@ -37,11 +37,11 @@ export function BottomNav() {
       </Link>
       
       <Link 
-        href="/search" 
-        className={`flex flex-col items-center gap-1 ${pathname.startsWith("/search") ? "text-primary" : "text-muted-foreground hover:text-foreground transition-colors"}`}
+        href="/chat" 
+        className={`flex flex-col items-center gap-1 ${pathname.startsWith("/chat") ? "text-primary" : "text-muted-foreground hover:text-foreground transition-colors"}`}
       >
-        <Search className="w-5 h-5" />
-        <span className="text-[10px] font-medium">Search</span>
+        <MessageSquare className="w-5 h-5" />
+        <span className="text-[10px] font-medium">Chat</span>
       </Link>
       
       <Link 

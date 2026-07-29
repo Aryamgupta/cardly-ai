@@ -8,11 +8,11 @@ export default function SettingsPage() {
       
       <div className="space-y-6">
         <div className="bg-white rounded-2xl border border-border overflow-hidden shadow-sm">
-          <div className="flex items-center gap-4 p-4 border-b border-border hover:bg-slate-50 cursor-pointer">
+          <Link href="/settings/preferences" className="flex items-center gap-4 p-4 border-b border-border hover:bg-slate-50 cursor-pointer transition-colors">
             <User className="w-5 h-5 text-muted-foreground" />
             <span className="font-medium flex-1 text-foreground">Account Preferences</span>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
-          </div>
+          </Link>
           <Link href="/settings/change-password" className="flex items-center gap-4 p-4 border-b border-border hover:bg-slate-50 cursor-pointer transition-colors">
             <Key className="w-5 h-5 text-muted-foreground" />
             <span className="font-medium flex-1 text-foreground">Change Password</span>

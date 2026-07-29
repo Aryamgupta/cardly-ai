@@ -17,15 +17,30 @@ export async function getPendingFollowUpNotifications(): Promise<NotificationIte
 
   if (!user) return [];
 
-  const { data: followUps } = await supabase
-    .from('cards')
-    .select('id, full_name, company_name, follow_up_date')
-    .eq('user_id', user.id)
-    .eq('follow_up_status', 'pending')
-    .not('follow_up_date', 'is', null)
-    .order('follow_up_date', { ascending: true })
-    .limit(5);
+  // OPTIMIZED: Run profile check and follow-up query in PARALLEL
+  // instead of sequentially — saves one DB round-trip on every notification poll
+  const [profileResult, followUpsResult] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('in_app_notifications')
+      .eq('id', user.id)
+      .single(),
+    supabase
+      .from('cards')
+      .select('id, full_name, company_name, follow_up_date')
+      .eq('user_id', user.id)
+      .eq('follow_up_status', 'pending')
+      .not('follow_up_date', 'is', null)
+      .order('follow_up_date', { ascending: true })
+      .limit(5),
+  ]);
 
+  // If user has explicitly disabled in-app notifications, return empty
+  if (profileResult.data && profileResult.data.in_app_notifications === false) {
+    return [];
+  }
+
+  const followUps = followUpsResult.data;
   if (!followUps) return [];
 
   return followUps.map((card) => {

@@ -59,20 +59,17 @@ export default async function ContactProfilePage({
     return notFound();
   }
 
-  let imageUrl = null;
-  let backImageUrl = null;
-  if (card.original_image_path) {
-    const { data: urlData } = await supabase.storage
-      .from("business-cards")
-      .createSignedUrl(card.original_image_path, 3600);
-    imageUrl = urlData?.signedUrl || null;
-  }
-  if (card.back_image_path) {
-    const { data: backUrlData } = await supabase.storage
-      .from("business-cards")
-      .createSignedUrl(card.back_image_path, 3600);
-    backImageUrl = backUrlData?.signedUrl || null;
-  }
+  // OPTIMIZED: Fetch both signed URLs in PARALLEL instead of sequentially
+  const [frontResult, backResult] = await Promise.all([
+    card.original_image_path
+      ? supabase.storage.from("business-cards").createSignedUrl(card.original_image_path, 3600)
+      : Promise.resolve({ data: null }),
+    card.back_image_path
+      ? supabase.storage.from("business-cards").createSignedUrl(card.back_image_path, 3600)
+      : Promise.resolve({ data: null }),
+  ]);
+  const imageUrl = frontResult.data?.signedUrl || null;
+  const backImageUrl = backResult.data?.signedUrl || null;
   const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(card.full_name || "Unknown")}&background=random&color=fff&size=150`;
 
   const email = card.emails && card.emails.length > 0 ? card.emails[0] : null;

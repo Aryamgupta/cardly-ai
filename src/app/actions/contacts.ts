@@ -55,3 +55,20 @@ export async function updateContact(id: string, formData: FormData) {
   revalidatePath(`/contacts/${id}`);
   revalidatePath("/contacts");
 }
+
+export async function toggleFavorite(cardId: string, isFavorite: boolean) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("Unauthorized");
+
+  const { error } = await supabase
+    .from("cards")
+    .update({ is_favorite: isFavorite })
+    .eq("id", cardId)
+    .eq("user_id", user.id);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/contacts");
+}
