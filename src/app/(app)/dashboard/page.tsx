@@ -125,7 +125,9 @@ export default async function DashboardPage() {
                 </div>
                 <div className="flex-1 overflow-hidden">
                   <h3 className="font-bold text-base truncate">{card.full_name || 'Scanning...'}</h3>
-                  <p className="text-sm text-muted-foreground truncate">{card.designation || 'Processing'}</p>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {card.designation || card.company_name || (card.processing_status === 'confirmed' ? 'No Title' : 'Processing')}
+                  </p>
                 </div>
                 <div className="text-muted-foreground flex flex-col items-end gap-1">
                   {card.processing_status === 'confirmed' ? (
