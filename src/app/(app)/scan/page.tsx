@@ -7,6 +7,7 @@ import { useState, useRef, useEffect } from "react";
 import { createCard } from "@/services/cards/createCard";
 import { uploadCardImage } from "@/services/storage/uploadCardImage";
 import { createClient } from "@/utils/supabase/client";
+import { toast } from "sonner";
 
 export default function ScanPage() {
   const [isScanning, setIsScanning] = useState(false);
@@ -91,7 +92,8 @@ export default function ScanPage() {
       });
 
       if (!res.ok) {
-        throw new Error("AI extraction failed");
+        const errorData = await res.json().catch(() => null);
+        throw new Error(errorData?.error || "AI extraction failed");
       }
 
       setStatus("Done!");
@@ -99,7 +101,7 @@ export default function ScanPage() {
 
     } catch (err: any) {
       console.error(err);
-      alert(err.message || "Something went wrong during scanning.");
+      toast.error(err.message || "Something went wrong during scanning.");
       setIsScanning(false);
       setScanStep("front");
       setFrontFile(null);

@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import { updateContact } from "@/app/actions/contacts";
 import { Card } from "@/types";
+import { SubmitEditButton } from "./SubmitEditButton";
 
 export default async function EditContactPage({
   params,
@@ -139,9 +140,7 @@ export default async function EditContactPage({
 
       {/* Floating Save Button */}
       <div className="fixed bottom-[72px] w-full max-w-md left-1/2 -translate-x-1/2 p-6 bg-white border-t border-border z-40 rounded-t-3xl shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)]">
-        <button type="submit" form="edit-form" className="w-full bg-primary text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/25 hover:bg-primary/90 transition-colors">
-          <Save className="w-5 h-5" /> Save Changes
-        </button>
+        <SubmitEditButton />
       </div>
     </div>
   );

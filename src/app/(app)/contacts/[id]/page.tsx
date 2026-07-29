@@ -24,8 +24,10 @@ import { SaveContactButton } from "./SaveContactButton";
 import { ShareContactButton } from "./ShareContactButton";
 import { CopyableField } from "./CopyableField";
 import { InteractiveNotes } from "./InteractiveNotes";
+import { DeleteContactButton } from "./DeleteContactButton";
 import { Card } from "@/types";
 import { CardImages } from "@/components/ui/CardImages";
+import { FollowUpSection } from "./FollowUpSection";
 
 export default async function ContactProfilePage({
   params,
@@ -110,13 +112,7 @@ export default async function ContactProfilePage({
             <Edit2 className="w-5 h-5" />
           </Link>
           <form action={deleteContact}>
-            <button
-              type="submit"
-              className="text-red-500 hover:text-red-600 transition-colors"
-              title="Delete Contact"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
+            <DeleteContactButton />
           </form>
         </div>
       </div>
@@ -234,6 +230,12 @@ export default async function ContactProfilePage({
         <SaveContactButton id={id} />
         <ShareContactButton card={card} />
       </div>
+
+      <FollowUpSection
+        cardId={card.id}
+        initialDate={card.follow_up_date}
+        initialStatus={card.follow_up_status}
+      />
 
       {/* AI Insights */}
       <div className="px-6 mb-6">

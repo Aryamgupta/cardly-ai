@@ -40,6 +40,9 @@ export interface Card {
   social_links?: SocialLinks;
   notes?: string;
   original_image_path?: string;
+  follow_up_date?: string;
+  follow_up_status?: 'pending' | 'completed' | 'cancelled';
+  reminder_sent?: boolean;
   ai_metadata?: AIMetadata;
   created_at?: string;
   updated_at?: string;

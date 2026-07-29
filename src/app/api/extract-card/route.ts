@@ -174,37 +174,46 @@ export async function POST(request: NextRequest) {
 
     // 3.5 Duplicate Detection
     const { data: { user } } = await supabase.auth.getUser();
-    if (user && extractedData.email) {
-      const { data: duplicates } = await supabase
+    if (user && (extractedData.email || extractedData.full_name)) {
+      const { data: existingCards } = await supabase
         .from("cards")
-        .select("id")
+        .select("id, emails, full_name")
         .eq("user_id", user.id)
-        .neq("id", cardId)
-        .contains("emails", [extractedData.email])
-        .limit(1);
-      
-      if (duplicates && duplicates.length > 0) {
-        await supabase.from("cards").delete().eq("id", cardId);
-        return NextResponse.json(
-          { error: "Duplicate contact detected. You already have a card for this email address." },
-          { status: 409 }
-        );
-      }
-    } else if (user && extractedData.full_name) {
-      const { data: duplicates } = await supabase
-        .from("cards")
-        .select("id")
-        .eq("user_id", user.id)
-        .neq("id", cardId)
-        .ilike("full_name", extractedData.full_name)
-        .limit(1);
+        .neq("id", cardId);
+        
+      if (existingCards && existingCards.length > 0) {
+        let isDuplicate = false;
+        let dupReason = "";
+        
+        const newEmail = extractedData.email?.toLowerCase().trim();
+        const newName = extractedData.full_name?.toLowerCase().trim();
 
-      if (duplicates && duplicates.length > 0) {
-        await supabase.from("cards").delete().eq("id", cardId);
-        return NextResponse.json(
-          { error: "Duplicate contact detected. You already have a card for this person." },
-          { status: 409 }
-        );
+        for (const existing of existingCards) {
+          if (newEmail && existing.emails && Array.isArray(existing.emails)) {
+            const hasMatch = existing.emails.some((e: string) => e.toLowerCase().trim() === newEmail);
+            if (hasMatch) {
+              isDuplicate = true;
+              dupReason = "email address";
+              break;
+            }
+          }
+          
+          if (!isDuplicate && newName && existing.full_name) {
+            if (existing.full_name.toLowerCase().trim() === newName) {
+              isDuplicate = true;
+              dupReason = "person";
+              break;
+            }
+          }
+        }
+
+        if (isDuplicate) {
+          await supabase.from("cards").delete().eq("id", cardId);
+          return NextResponse.json(
+            { error: `Duplicate contact detected. You already have a card for this ${dupReason}.` },
+            { status: 409 }
+          );
+        }
       }
     }
 

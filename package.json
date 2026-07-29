@@ -19,6 +19,7 @@
     "opencv-wasm": "^4.3.0-10",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "resend": "^6.18.1",
     "sharp": "^0.35.3",
     "sonner": "^2.0.7",
     "tailwindcss-animate": "^1.0.7"

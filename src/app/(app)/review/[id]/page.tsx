@@ -4,6 +4,8 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { CardImages } from "@/components/ui/CardImages";
+import { DiscardButton } from "./DiscardButton";
+import { SubmitReviewButton } from "./SubmitReviewButton";
 
 export default async function ReviewPage({ params }: { params: { id: string } }) {
   const supabase = await createClient();
@@ -209,10 +211,9 @@ export default async function ReviewPage({ params }: { params: { id: string } })
       </div>
 
       {/* Footer Action */}
-      <div className="fixed bottom-[72px] w-full max-w-md left-1/2 -translate-x-1/2 p-6 bg-white border-t border-border z-40 rounded-t-3xl shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)]">
-        <button type="submit" form="review-form" className="w-full bg-primary text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/25 hover:bg-primary/90 transition-colors">
-          <Check className="w-5 h-5" /> Save to Contacts
-        </button>
+      <div className="fixed bottom-[72px] w-full max-w-md left-1/2 -translate-x-1/2 p-6 bg-white border-t border-border z-40 rounded-t-3xl shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] flex flex-col gap-3">
+        <SubmitReviewButton />
+        <DiscardButton cardId={id} />
       </div>
     </div>
   );
