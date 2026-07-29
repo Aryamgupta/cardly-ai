@@ -18,6 +18,7 @@ export interface AIMetadata {
   has_whatsapp?: boolean;
   tags?: string[];
   summary?: string;
+  qr_url?: string;
   [key: string]: JSONValue | undefined;
 }
 
@@ -27,7 +28,7 @@ export interface SocialLinks {
 
 export interface Card {
   id: string;
-  processing_status:string
+  processing_status: string
   user_id: string;
   full_name: string;
   company_name?: string;
@@ -42,4 +43,5 @@ export interface Card {
   ai_metadata?: AIMetadata;
   created_at?: string;
   updated_at?: string;
+  back_image_path?: string;
 }

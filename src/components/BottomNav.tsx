@@ -7,6 +7,10 @@ import { LayoutDashboard, Users, Camera, Search, Settings } from "lucide-react";
 export function BottomNav() {
   const pathname = usePathname() || "";
 
+  if (pathname === "/scan") {
+    return null;
+  }
+
   return (
     <nav className="fixed bottom-0 w-full max-w-md left-1/2 -translate-x-1/2 bg-background border-t border-border flex justify-between items-center px-6 py-3 z-50">
       <Link 

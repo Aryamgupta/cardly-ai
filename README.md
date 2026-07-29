@@ -9,9 +9,10 @@ Cardly AI is a modern, mobile-first Progressive Web Application (PWA) that uses 
 - **Dynamic Classification Tags**: Automatically generates industry-specific keywords (e.g., "Enterprise AI", "Fintech") with consistent, hashed pastel colors.
 - **WhatsApp Detection**: AI vision detects if a phone number is linked to WhatsApp based on icons on the physical card, rendering a dynamic green WhatsApp chat button if found.
 - **Save to Phone Contacts**: Generates a standard `.vcf` vCard on the fly, allowing users to save the contact directly to their native iOS/Android address book with a single tap.
-- **Secure Authentication & Session Management**: Built-in Supabase SSR Auth with secure PKCE callback flows, email verification, and password reset functionalities.
-- **Editable Contact Profiles**: Interactive profile view allowing users to manually update AI-extracted fields and add custom, auto-saving notes.
-- **Responsive & Dynamic UI**: Beautiful glassmorphism UI optimized for all devices, from mobile phones to ultra-wide desktop monitors, featuring ambient background glow and sticky scroll views.
+- **Secure Authentication & Password Management**: Built-in Supabase SSR Auth with secure PKCE callback flows, email verification, and a robust "Change Password" flow requiring current password validation.
+- **Invite Hub / Referral System**: A dedicated "Invite Friends" hub using a mobile-first approach. Features native Web Share API integration (for messaging apps) and beautifully pre-formatted `mailto:` email fallbacks.
+- **Custom Toaster Notifications**: A fully bespoke, custom-themed global toast notification system (powered by `sonner`) for providing rich, animated feedback across server actions and client forms.
+- **Responsive & Dynamic UI**: Beautiful glassmorphism UI optimized for all devices, featuring ambient background glow, sticky scroll views, and dynamic client-side active-state navigation routing.
 
 ## Supabase Email Templates 📧
 

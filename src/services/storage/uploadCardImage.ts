@@ -1,9 +1,9 @@
 import { createClient } from "@/utils/supabase/client";
 
 const supabase = createClient();
-export async function uploadCardImage(userId: string, cardId: string, file: File): Promise<string | null> {
+export async function uploadCardImage(userId: string, cardId: string, file: File, suffix: string = ''): Promise<string | null> {
   const fileExt = file.name.split('.').pop();
-  const filePath = `${userId}/${cardId}/original.${fileExt}`;
+  const filePath = `${userId}/${cardId}/original${suffix}.${fileExt}`;
 
   const { data, error } = await supabase.storage
     .from('business-cards')

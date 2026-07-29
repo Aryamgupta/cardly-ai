@@ -27,7 +27,7 @@ export default function SearchPage() {
         .select('*')
         .eq('user_id', user.id)
         .order('full_name', { ascending: true });
-        
+
       if (data) {
         setCards(data);
       }
@@ -47,19 +47,19 @@ export default function SearchPage() {
       <h1 className="text-2xl font-bold mb-6">Search</h1>
       <div className="relative mb-8">
         <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-        <input 
-          type="text" 
-          placeholder="Search name, company, or detail..." 
+        <input
+          type="text"
+          placeholder="Search name, company, or detail..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="w-full bg-white border border-border rounded-xl pl-10 pr-4 py-4 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-primary"
         />
       </div>
-      
+
       {!query && (
         <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
-           <Search className="w-12 h-12 mb-4 opacity-20" />
-           <p>Find anyone by name, role, or company.</p>
+          <Search className="w-12 h-12 mb-4 opacity-20" />
+          <p>Find anyone by name, role, or company.</p>
         </div>
       )}
 
@@ -71,7 +71,7 @@ export default function SearchPage() {
 
       {!loading && query && filteredCards.length === 0 && (
         <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
-           <p>No results found for &quot;{query}&quot;</p>
+          <p>No results found for &quot;{query}&quot;</p>
         </div>
       )}
 
@@ -82,8 +82,8 @@ export default function SearchPage() {
             <Link key={card.id} href={card.processing_status === 'confirmed' ? `/contacts/${card.id}` : `/review/${card.id}`} className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-border shadow-sm hover:shadow-md transition-shadow cursor-pointer">
               <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg overflow-hidden shrink-0">
                 {card.original_image_path ? (
-                  <img 
-                    src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/business-cards/${card.original_image_path}`} 
+                  <img
+                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(card.full_name || "Unknown")}&background=random&color=fff&size=150`}
                     alt="avatar"
                     className="w-full h-full object-cover"
                   />

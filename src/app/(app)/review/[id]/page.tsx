@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { CardImages } from "@/components/ui/CardImages";
 
 export default async function ReviewPage({ params }: { params: { id: string } }) {
   const supabase = await createClient();
@@ -34,11 +35,19 @@ export default async function ReviewPage({ params }: { params: { id: string } })
 
   const aiData = card.ai_metadata || {};
   let imageUrl = null;
+  let backImageUrl = null;
   if (card.original_image_path) {
     const { data: urlData } = await supabase.storage
       .from('business-cards')
       .createSignedUrl(card.original_image_path, 3600);
     imageUrl = urlData?.signedUrl || null;
+  }
+  
+  if (card.back_image_path) {
+    const { data: backUrlData } = await supabase.storage
+      .from('business-cards')
+      .createSignedUrl(card.back_image_path, 3600);
+    backImageUrl = backUrlData?.signedUrl || null;
   }
 
   async function saveCard(formData: FormData) {
@@ -48,6 +57,12 @@ export default async function ReviewPage({ params }: { params: { id: string } })
     // Convert comma separated socials back to array
     const socialsStr = formData.get("social_profiles") as string;
     const socialsArray = socialsStr ? socialsStr.split(',').map(s => s.trim()) : [];
+    
+    const qrUrl = formData.get("qr_url") as string;
+    const updatedAiMetadata = {
+      ...(card.ai_metadata || {}),
+      qr_url: qrUrl || undefined
+    };
 
     const { error } = await supabase
       .from('cards')
@@ -60,6 +75,7 @@ export default async function ReviewPage({ params }: { params: { id: string } })
         website: formData.get("website"),
         address: formData.get("address") ? { text: formData.get("address") } : {},
         social_links: socialsArray.length > 0 ? { links: socialsArray } : {},
+        ai_metadata: updatedAiMetadata,
         processing_status: 'confirmed'
       })
       .eq('id', id);
@@ -92,19 +108,8 @@ export default async function ReviewPage({ params }: { params: { id: string } })
       <div className="flex-1 overflow-y-auto">
         <div className="p-6 space-y-6">
           
-          {/* Original Card Preview */}
-          <div className="w-full aspect-[16/9] bg-slate-200 rounded-2xl overflow-hidden border border-border shadow-inner relative">
-            {imageUrl ? (
-              <img src={imageUrl} alt="Business Card" className="w-full h-full object-cover" />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground font-medium text-sm">
-                No Image Available
-              </div>
-            )}
-            <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded font-medium">
-              ORIGINAL IMAGE
-            </div>
-          </div>
+          {/* Card Images Preview (Front and Back) */}
+          <CardImages frontUrl={imageUrl} backUrl={backImageUrl} />
 
           <form action={saveCard} id="review-form" className="space-y-5">
             <div className="bg-white rounded-2xl border border-border p-5 shadow-sm space-y-4">
@@ -164,6 +169,15 @@ export default async function ReviewPage({ params }: { params: { id: string } })
                   name="website"
                   type="text" 
                   defaultValue={card.website || aiData.website || ""} 
+                  className="w-full border-b border-border py-2 text-foreground font-medium focus:outline-none focus:border-primary transition-colors bg-transparent"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-500 uppercase">QR URL</label>
+                <input 
+                  name="qr_url"
+                  type="text" 
+                  defaultValue={card.ai_metadata?.qr_url || aiData.qr_url || ""} 
                   className="w-full border-b border-border py-2 text-foreground font-medium focus:outline-none focus:border-primary transition-colors bg-transparent"
                 />
               </div>

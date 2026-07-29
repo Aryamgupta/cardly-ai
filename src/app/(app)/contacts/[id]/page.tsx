@@ -24,8 +24,8 @@ import { SaveContactButton } from "./SaveContactButton";
 import { ShareContactButton } from "./ShareContactButton";
 import { CopyableField } from "./CopyableField";
 import { InteractiveNotes } from "./InteractiveNotes";
-import Image from "next/image";
 import { Card } from "@/types";
+import { CardImages } from "@/components/ui/CardImages";
 
 export default async function ContactProfilePage({
   params,
@@ -58,11 +58,18 @@ export default async function ContactProfilePage({
   }
 
   let imageUrl = null;
+  let backImageUrl = null;
   if (card.original_image_path) {
     const { data: urlData } = await supabase.storage
       .from("business-cards")
       .createSignedUrl(card.original_image_path, 3600);
     imageUrl = urlData?.signedUrl || null;
+  }
+  if (card.back_image_path) {
+    const { data: backUrlData } = await supabase.storage
+      .from("business-cards")
+      .createSignedUrl(card.back_image_path, 3600);
+    backImageUrl = backUrlData?.signedUrl || null;
   }
   const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(card.full_name || "Unknown")}&background=random&color=fff&size=150`;
 
@@ -238,6 +245,19 @@ export default async function ContactProfilePage({
             {card.ai_metadata?.summary ||
               "AI extraction complete. More insights will be available soon."}
           </p>
+
+          {card.ai_metadata?.qr_url && (
+            <a 
+              href={card.ai_metadata.qr_url.startsWith('http') ? card.ai_metadata.qr_url : `https://${card.ai_metadata.qr_url}`}
+              target="_blank"
+              rel="noopener noreferrer" 
+              className="flex items-center gap-2 mb-4 px-3 py-2 bg-secondary/10 text-secondary border border-secondary/20 rounded-lg text-sm font-medium hover:bg-secondary/20 transition-colors"
+            >
+              <LinkIcon className="w-4 h-4" />
+              <span>Extracted QR Link</span>
+            </a>
+          )}
+
           {/* Static tags for now */}
           <div className="flex gap-2">
             <span className="px-2 py-1 bg-secondary/5 text-secondary border border-secondary/20 text-[10px] font-bold uppercase tracking-wider rounded flex items-center gap-1">
@@ -268,23 +288,8 @@ export default async function ContactProfilePage({
             <h3 className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
               Original Card
             </h3>
-            <button className="text-primary text-xs font-medium flex items-center gap-1 hover:underline">
-              Expand <Maximize2 className="w-3 h-3" />
-            </button>
           </div>
-          <div className="w-full aspect-[16/9] bg-slate-200 rounded-lg overflow-hidden border border-border relative">
-            {imageUrl ? (
-              <img
-                src={imageUrl}
-                alt="Card"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm font-medium">
-                No Image Available
-              </div>
-            )}
-          </div>
+          <CardImages frontUrl={imageUrl} backUrl={backImageUrl} />
         </div>
       </div>
 

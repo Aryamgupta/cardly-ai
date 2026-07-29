@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera, Image as ImageIcon, X, Loader2, Scan, CheckCircle2, UploadCloud, BrainCircuit, Database } from "lucide-react";
+import { Camera, Image as ImageIcon, X, Loader2, Scan, CheckCircle2, UploadCloud, BrainCircuit, Database, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
@@ -12,7 +12,10 @@ export default function ScanPage() {
   const [isScanning, setIsScanning] = useState(false);
   const [status, setStatus] = useState("");
   const [webRTCError, setWebRTCError] = useState("");
+  
+  const [frontFile, setFrontFile] = useState<File | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [scanStep, setScanStep] = useState<"front" | "back_prompt" | "back">("front");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -44,7 +47,7 @@ export default function ScanPage() {
       }
     }
 
-    if (!isScanning) {
+    if (!isScanning && scanStep !== "back_prompt") {
       startCamera();
     }
 
@@ -53,14 +56,10 @@ export default function ScanPage() {
         stream.getTracks().forEach(track => track.stop());
       }
     };
-  }, [isScanning]);
+  }, [isScanning, scanStep]);
 
-  const processFile = async (file: File) => {
+  const startProcessing = async (front: File, back?: File) => {
     try {
-      // Freeze the frame by getting an object URL of the file
-      const imageUrl = URL.createObjectURL(file);
-      setCapturedImage(imageUrl);
-      
       setIsScanning(true);
       setStatus("Initializing...");
 
@@ -71,15 +70,24 @@ export default function ScanPage() {
       const cardRecord = await createCard(user.id, "");
       if (!cardRecord) throw new Error("Failed to create card record");
 
-      setStatus("Uploading image...");
-      const path = await uploadCardImage(user.id, cardRecord.id, file);
-      if (!path) throw new Error("Failed to upload image");
+      setStatus("Uploading image(s)...");
+      const frontPath = await uploadCardImage(user.id, cardRecord.id, front, '');
+      if (!frontPath) throw new Error("Failed to upload front image");
+
+      let backPath = null;
+      if (back) {
+        backPath = await uploadCardImage(user.id, cardRecord.id, back, '_back');
+      }
 
       setStatus("Extracting AI data...");
       const res = await fetch("/api/extract-card", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cardId: cardRecord.id, imagePath: path })
+        body: JSON.stringify({ 
+          cardId: cardRecord.id, 
+          imagePath: frontPath,
+          backImagePath: backPath
+        })
       });
 
       if (!res.ok) {
@@ -93,13 +101,26 @@ export default function ScanPage() {
       console.error(err);
       alert(err.message || "Something went wrong during scanning.");
       setIsScanning(false);
+      setScanStep("front");
+      setFrontFile(null);
       setCapturedImage(null);
+    }
+  };
+
+  const handleCapture = (file: File) => {
+    if (scanStep === "front") {
+      const imageUrl = URL.createObjectURL(file);
+      setCapturedImage(imageUrl);
+      setFrontFile(file);
+      setScanStep("back_prompt");
+    } else if (scanStep === "back" && frontFile) {
+      startProcessing(frontFile, file);
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) processFile(file);
+    if (file) handleCapture(file);
   };
 
   const captureCamera = () => {
@@ -120,8 +141,8 @@ export default function ScanPage() {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         canvas.toBlob((blob) => {
           if (blob) {
-            const file = new File([blob], "capture.jpg", { type: "image/jpeg" });
-            processFile(file);
+            const file = new File([blob], `capture_${scanStep}.jpg`, { type: "image/jpeg" });
+            handleCapture(file);
           }
         }, 'image/jpeg', 0.8);
       }
@@ -140,6 +161,41 @@ export default function ScanPage() {
     { id: 3, label: "Finalizing", icon: Database },
   ];
 
+  if (scanStep === "back_prompt" && capturedImage && !isScanning) {
+    return (
+      <div className="fixed inset-0 bg-[#0B1020] text-white z-50 flex flex-col">
+        <div className="flex justify-between items-center p-6 z-10">
+          <button onClick={() => { setScanStep("front"); setFrontFile(null); setCapturedImage(null); }} className="p-2 bg-white/10 rounded-full backdrop-blur-md">
+            <X className="w-6 h-6" />
+          </button>
+          <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-md">
+            <span className="text-sm font-medium">Front Captured</span>
+            <CheckCircle2 className="w-4 h-4 text-green-400" />
+          </div>
+        </div>
+
+        <div className="flex-1 flex flex-col items-center justify-center p-6">
+          <img src={capturedImage} alt="Front of card" className="w-full max-w-sm rounded-2xl shadow-2xl mb-8 border border-white/20" />
+          
+          <div className="w-full max-w-sm space-y-4">
+            <button 
+              onClick={() => { setScanStep("back"); setCapturedImage(null); }}
+              className="w-full py-4 bg-primary text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg hover:bg-primary/90 transition-colors"
+            >
+              <Camera className="w-5 h-5" /> Scan Back of Card
+            </button>
+            <button 
+              onClick={() => frontFile && startProcessing(frontFile)}
+              className="w-full py-4 bg-white/10 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-white/20 transition-colors"
+            >
+              Process Now <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 bg-[#0B1020] text-white z-50 flex flex-col">
       <input
@@ -156,12 +212,18 @@ export default function ScanPage() {
       {/* Header */}
       {!isScanning && (
         <div className="flex justify-between items-center p-6 z-10">
-          <Link href="/dashboard" className="p-2 bg-white/10 rounded-full backdrop-blur-md">
-            <X className="w-6 h-6" />
-          </Link>
+          {scanStep === "front" ? (
+            <Link href="/dashboard" className="p-2 bg-white/10 rounded-full backdrop-blur-md">
+              <X className="w-6 h-6" />
+            </Link>
+          ) : (
+            <button onClick={() => { setScanStep("back_prompt"); }} className="p-2 bg-white/10 rounded-full backdrop-blur-md">
+              <X className="w-6 h-6" />
+            </button>
+          )}
           <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-md">
             <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-            <span className="text-sm font-medium">AI Ready</span>
+            <span className="text-sm font-medium">{scanStep === "front" ? "AI Ready" : "Scan Back"}</span>
           </div>
         </div>
       )}
@@ -241,7 +303,9 @@ export default function ScanPage() {
 
         {!isScanning && (
           <div className="absolute bottom-8 left-0 right-0 text-center z-10">
-            <p className="text-sm font-medium text-white shadow-black drop-shadow-md bg-black/30 inline-block px-4 py-2 rounded-full backdrop-blur-sm">Align business card within frame</p>
+            <p className="text-sm font-medium text-white shadow-black drop-shadow-md bg-black/30 inline-block px-4 py-2 rounded-full backdrop-blur-sm">
+              {scanStep === "front" ? "Align front of card within frame" : "Align back of card within frame"}
+            </p>
           </div>
         )}
       </div>
