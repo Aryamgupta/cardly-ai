@@ -128,3 +128,48 @@ export async function updatePassword(formData: FormData) {
   revalidatePath("/", "layout");
   redirect("/dashboard");
 }
+
+
+export async function changePassword(formData: FormData) {
+  const supabase = await createClient();
+
+  const currentPassword = formData.get("currentPassword") as string;
+  const newPassword = formData.get("newPassword") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    return { error: "All password fields are required" };
+  }
+
+  if (newPassword !== confirmPassword) {
+    return { error: "New passwords do not match" };
+  }
+
+  // Verify current password by signing in
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user?.email) {
+    return { error: "You must be logged in to change your password" };
+  }
+
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: currentPassword,
+  });
+
+  if (signInError) {
+    return { error: "Incorrect current password" };
+  }
+
+  // Update to new password
+  const { error: updateError } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  revalidatePath("/", "layout");
+  return { success: true };
+}

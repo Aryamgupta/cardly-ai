@@ -36,7 +36,7 @@ export default async function EditContactPage({
   async function handleUpdate(formData: FormData) {
     "use server";
     await updateContact(id, formData);
-    redirect(`/contacts/${id}`);
+    redirect(`/contacts/${id}?toast=edit-success`);
   }
 
   return (

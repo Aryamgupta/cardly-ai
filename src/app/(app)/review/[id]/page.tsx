@@ -68,9 +68,9 @@ export default async function ReviewPage({ params }: { params: { id: string } })
       console.error(error);
       throw new Error("Failed to save card");
     }
-
     revalidatePath("/", "layout");
-    redirect("/dashboard");
+    const name = formData.get("full_name") as string || "Contact";
+    redirect(`/dashboard?toast=contact-saved&name=${encodeURIComponent(name)}`);
   }
 
   return (
