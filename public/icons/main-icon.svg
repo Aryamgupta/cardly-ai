@@ -1,13 +1,3 @@
-const sharp = require('sharp');
-const fs = require('fs');
-const path = require('path');
-
-const iconsDir = path.join(__dirname, '..', 'public', 'icons');
-if (!fs.existsSync(iconsDir)) {
-  fs.mkdirSync(iconsDir, { recursive: true });
-}
-
-const svgBuffer = Buffer.from(`
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect width="1024" height="1024" rx="220" fill="#0B1020"/>
   <defs>
@@ -26,20 +16,3 @@ const svgBuffer = Buffer.from(`
   <path d="M512 362L542 482L662 512L542 542L512 662L482 542L362 512L482 482L512 362Z" fill="url(#icon_grad)" filter="url(#glow)"/>
   <circle cx="512" cy="512" r="60" stroke="white" stroke-width="8" stroke-opacity="0.5"/>
 </svg>
-`);
-
-async function generateIcons() {
-  await sharp(svgBuffer)
-    .resize(192, 192)
-    .png()
-    .toFile(path.join(iconsDir, 'icon-192x192.png'));
-
-  await sharp(svgBuffer)
-    .resize(512, 512)
-    .png()
-    .toFile(path.join(iconsDir, 'icon-512x512.png'));
-
-  console.log("Icons generated successfully.");
-}
-
-generateIcons().catch(console.error);
