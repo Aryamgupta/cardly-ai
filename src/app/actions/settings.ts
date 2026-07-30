@@ -54,7 +54,7 @@ export async function updateUserSettings(emailNotifs: boolean, inAppNotifs: bool
   return { success: true };
 }
 
-export async function updateProfile(fullName: string, avatarUrl: string) {
+export async function updateProfile(fullName: string, avatarUrl: string, jobTitle: string = "") {
   const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -66,7 +66,8 @@ export async function updateProfile(fullName: string, avatarUrl: string) {
     .from("profiles")
     .update({ 
       full_name: fullName,
-      avatar_url: avatarUrl
+      avatar_url: avatarUrl,
+      job_title: jobTitle
     })
     .eq("id", user.id);
 

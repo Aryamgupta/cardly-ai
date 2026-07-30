@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { ChevronLeft, HelpCircle, ChevronDown, Mail, Send, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { CustomToast } from "@/components/ui/CustomToast";
+import { submitSupportRequest } from "@/app/actions/support";
 
 const FAQS = [
   {
@@ -13,7 +14,7 @@ const FAQS = [
   },
   {
     question: "Can I export my scanned contacts?",
-    answer: "Yes, you can export your contacts to CSV from the main dashboard by clicking the Export button in the top right corner."
+    answer: "Yes, you can export your contacts to CSV from the Privacy & Security tab in Settings."
   },
   {
     question: "Is my data secure?",
@@ -23,26 +24,39 @@ const FAQS = [
 
 export default function HelpSupportPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [isSending, setIsSending] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
 
   const handleSupportSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSending(true);
     
-    // Mock network request
-    setTimeout(() => {
-      setIsSending(false);
-      setMessage("");
-      toast.custom((t) => (
-        <CustomToast 
-          id={t}
-          variant="success"
-          title="Message Sent"
-          description="Our support team will get back to you shortly."
-        />
-      ));
-    }, 1500);
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append("message", message);
+      
+      const result = await submitSupportRequest(formData);
+      
+      if (result.error) {
+        toast.custom((t) => (
+          <CustomToast 
+            id={t}
+            variant="error"
+            title="Send Failed"
+            description={result.error}
+          />
+        ));
+      } else {
+        setMessage("");
+        toast.custom((t) => (
+          <CustomToast 
+            id={t}
+            variant="success"
+            title="Message Sent"
+            description="Your support request has been sent to our developer team."
+          />
+        ));
+      }
+    });
   };
 
   return (
@@ -106,18 +120,19 @@ export default function HelpSupportPage() {
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Describe your issue or ask a question..."
                 required
+                disabled={isPending}
                 rows={4}
-                className="w-full bg-slate-50 border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                className="w-full bg-slate-50 border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
             <div className="pt-2 flex justify-end">
               <button 
                 type="submit"
-                disabled={isSending || !message.trim()}
+                disabled={isPending || !message.trim()}
                 className="bg-primary text-white px-6 py-2.5 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSending ? (
+                {isPending ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</>
                 ) : (
                   <><Send className="w-4 h-4" /> Send Message</>

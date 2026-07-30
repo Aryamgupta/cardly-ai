@@ -21,12 +21,13 @@ export default async function AccountPage() {
   // Fetch the latest profile data
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, avatar_url")
+    .select("full_name, avatar_url, job_title")
     .eq("id", user.id)
     .single();
 
   const name = profile?.full_name || user.user_metadata?.full_name || "";
   const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || "";
+  const jobTitle = profile?.job_title || "";
   const email = user.email || "";
 
   return (
@@ -42,7 +43,7 @@ export default async function AccountPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground">Account Preferences</h1>
-            <p className="text-muted-foreground">Manage your profile info, language, and region.</p>
+            <p className="text-muted-foreground">Manage your profile info and account preferences.</p>
           </div>
         </div>
       </div>
@@ -51,6 +52,7 @@ export default async function AccountPage() {
         <AccountForm 
           userId={user.id}
           initialName={name} 
+          initialJobTitle={jobTitle}
           initialEmail={email}
           initialAvatarUrl={avatarUrl}
         />

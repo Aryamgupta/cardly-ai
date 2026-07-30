@@ -63,7 +63,7 @@ export function PasskeyManager() {
       ));
       
       loadPasskeys();
-    } catch (error: any) {
+    } catch (error: E) {
       console.error("Passkey registration error:", error);
       toast.custom((t) => (
         <CustomToast 

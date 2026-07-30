@@ -62,32 +62,63 @@ export default function PrivacySecurityPage() {
         {/* Passkey / Biometrics Manager */}
         <PasskeyManager />
 
-        {/* Additional Security Toggles */}
+        {/* Data Management */}
         <div className="bg-white rounded-3xl border border-border shadow-sm overflow-hidden">
           <div className="p-6 border-b border-border">
-            <h2 className="text-xl font-bold text-foreground">Data Preferences</h2>
-            <p className="text-sm text-muted-foreground mt-1">Manage data sharing and analytics.</p>
+            <h2 className="text-xl font-bold text-foreground">Data Management</h2>
+            <p className="text-sm text-muted-foreground mt-1">Export your contacts and business cards.</p>
           </div>
           <div className="p-6 space-y-6">
 
-            {/* Data Analytics */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-start gap-4">
-                <div className="p-2.5 bg-purple-50 text-purple-600 rounded-xl">
+                <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl flex-shrink-0">
                   <Activity className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground">Share Analytics</h3>
-                  <p className="text-sm text-muted-foreground mt-0.5">Help us improve by sharing anonymous usage data.</p>
+                  <h3 className="font-semibold text-foreground">Export Data (CSV)</h3>
+                  <p className="text-sm text-muted-foreground mt-0.5">Download a CSV file containing all your scanned contacts and enriched metadata.</p>
                 </div>
               </div>
               <button 
                 type="button"
-                onClick={() => setAnalyticsEnabled(!analyticsEnabled)}
-                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${analyticsEnabled ? 'bg-primary' : 'bg-slate-200'}`}
-                role="switch"
+                onClick={async () => {
+                  try {
+                    const response = await fetch('/api/export');
+                    if (!response.ok) throw new Error('Failed to export data');
+                    
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `cardly_contacts_${new Date().toISOString().split('T')[0]}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    toast.custom((t) => (
+                      <CustomToast 
+                        id={t}
+                        variant="success"
+                        title="Export Successful"
+                        description="Your contacts have been downloaded."
+                      />
+                    ));
+                  } catch (error) {
+                    toast.custom((t) => (
+                      <CustomToast 
+                        id={t}
+                        variant="error"
+                        title="Export Failed"
+                        description="There was an issue generating your export."
+                      />
+                    ));
+                  }
+                }}
+                className="inline-flex items-center justify-center px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-xl transition-colors whitespace-nowrap"
               >
-                <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${analyticsEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                Download CSV
               </button>
             </div>
 

@@ -10,12 +10,14 @@ import { createClient } from "@/utils/supabase/client";
 interface AccountFormProps {
   userId: string;
   initialName: string;
+  initialJobTitle?: string;
   initialEmail: string;
   initialAvatarUrl: string;
 }
 
-export function AccountForm({ userId, initialName, initialEmail, initialAvatarUrl }: AccountFormProps) {
+export function AccountForm({ userId, initialName, initialJobTitle = "", initialEmail, initialAvatarUrl }: AccountFormProps) {
   const [name, setName] = useState(initialName);
+  const [jobTitle, setJobTitle] = useState(initialJobTitle);
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -58,7 +60,7 @@ export function AccountForm({ userId, initialName, initialEmail, initialAvatarUr
       setAvatarUrl(publicUrl);
       
       // Auto-save the new avatar URL
-      await updateProfile(name, publicUrl);
+      await updateProfile(name, publicUrl, jobTitle);
       
       toast.custom((t) => (
         <CustomToast 
@@ -88,7 +90,7 @@ export function AccountForm({ userId, initialName, initialEmail, initialAvatarUr
     e.preventDefault();
     setIsSaving(true);
     try {
-      await updateProfile(name, avatarUrl);
+      await updateProfile(name, avatarUrl, jobTitle);
       toast.custom((t) => (
         <CustomToast 
           id={t}
@@ -178,6 +180,17 @@ export function AccountForm({ userId, initialName, initialEmail, initialAvatarUr
                 className="w-full px-4 py-2.5 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 placeholder="Your Name"
                 required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">Job Title</label>
+              <input
+                type="text"
+                value={jobTitle}
+                onChange={(e) => setJobTitle(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                placeholder="e.g. Senior Product Strategist"
               />
             </div>
             
