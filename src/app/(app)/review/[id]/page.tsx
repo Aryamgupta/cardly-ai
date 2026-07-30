@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { CardImages } from "@/components/ui/CardImages";
 import { DiscardButton } from "./DiscardButton";
 import { SubmitReviewButton } from "./SubmitReviewButton";
+import { enrichAndEmbedContact } from "@/services/ai/enrichContact";
 
 export default async function ReviewPage({ params }: { params: { id: string } }) {
   const supabase = await createClient();
@@ -63,18 +64,22 @@ export default async function ReviewPage({ params }: { params: { id: string } })
       qr_url: qrUrl || undefined
     };
 
+    const contactData = {
+      full_name: formData.get("full_name") as string,
+      designation: formData.get("job_title") as string,
+      company_name: formData.get("company_name") as string,
+      emails: formData.get("email") ? [formData.get("email") as string] : [],
+      phones: formData.get("phone") ? [formData.get("phone") as string] : [],
+      website: formData.get("website") as string,
+      address: formData.get("address") ? { text: formData.get("address") as string } : {},
+      social_links: socialsArray.length > 0 ? { links: socialsArray } : {},
+      ai_metadata: updatedAiMetadata,
+    };
+
     const { error } = await supabase
       .from('cards')
       .update({
-        full_name: formData.get("full_name"),
-        designation: formData.get("job_title"),
-        company_name: formData.get("company_name"),
-        emails: formData.get("email") ? [formData.get("email")] : [],
-        phones: formData.get("phone") ? [formData.get("phone")] : [],
-        website: formData.get("website"),
-        address: formData.get("address") ? { text: formData.get("address") } : {},
-        social_links: socialsArray.length > 0 ? { links: socialsArray } : {},
-        ai_metadata: updatedAiMetadata,
+        ...contactData,
         processing_status: 'confirmed'
       })
       .eq('id', id);
@@ -83,6 +88,10 @@ export default async function ReviewPage({ params }: { params: { id: string } })
       console.error(error);
       throw new Error("Failed to save card");
     }
+
+    // Fire enrichment as a background task — user is not blocked
+    enrichAndEmbedContact(id, contactData)
+      .catch(err => console.error('Enrichment failed for card:', id, err));
     revalidatePath("/", "layout");
     const name = formData.get("full_name") as string || "Contact";
     redirect(`/dashboard?toast=contact-saved&name=${encodeURIComponent(name)}`);

@@ -1,12 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["192.168.29.14", "businesscard.ae"],
+  allowedDevOrigins: ["192.168.29.66", "businesscard.ae"],
   experimental: {
     // Next.js Server Actions require explicitly allowed origins if you are accessing the app 
     // from a device on your local network (e.g., your phone) using an IP address.
     serverActions: {
-      allowedOrigins: ["localhost:3000", "192.168.29.14:3000", "businesscard.ae"],
+      allowedOrigins: ["localhost:3000", "192.168.29.66:3000", "businesscard.ae"],
     },
   },
   images: {
