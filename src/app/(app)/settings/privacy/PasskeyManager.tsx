@@ -23,14 +23,14 @@ export function PasskeyManager() {
     try {
       const { data, error } = await supabase.auth.passkey.list();
       if (error) throw error;
-      
+
       // Map the passkeys to our expected format
       const mappedPasskeys = (data || []).map(p => ({
         id: p.id,
         name: p.friendly_name || 'My Device',
         created_at: p.created_at || new Date().toISOString()
       }));
-      
+
       setPasskeys(mappedPasskeys);
     } catch (error) {
       console.error("Error loading passkeys:", error);
@@ -48,25 +48,25 @@ export function PasskeyManager() {
     try {
       // 1. Start registration
       const { data, error } = await supabase.auth.registerPasskey();
-      
+
       if (error) {
         throw error;
       }
-      
+
       toast.custom((t) => (
-        <CustomToast 
+        <CustomToast
           id={t}
           variant="success"
           title="Biometrics Enabled"
           description="Your device is now registered for biometric login."
         />
       ));
-      
+
       loadPasskeys();
-    } catch (error: E) {
+    } catch (error: any) {
       console.error("Passkey registration error:", error);
       toast.custom((t) => (
-        <CustomToast 
+        <CustomToast
           id={t}
           variant="error"
           title="Registration Failed"
@@ -83,14 +83,14 @@ export function PasskeyManager() {
       // For some supabase-js versions the api is delete or unenroll
       // Try unenroll first (most common for MFA/Passkey), fallback to delete
       const method = (supabase.auth.passkey as any).unenroll || (supabase.auth.passkey as any).delete;
-      
+
       if (!method) {
-         throw new Error("SDK does not support passkey deletion natively.");
+        throw new Error("SDK does not support passkey deletion natively.");
       }
-      
+
       const { error } = await method({ id });
       if (error) throw error;
-      
+
       toast.success("Passkey removed");
       loadPasskeys();
     } catch (error: any) {
@@ -115,7 +115,7 @@ export function PasskeyManager() {
           Add Passkey
         </button>
       </div>
-      
+
       <div className="p-6">
         {isLoading ? (
           <div className="flex justify-center py-4">
