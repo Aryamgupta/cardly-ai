@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Loader2, AlertCircle, ArrowLeft, MailCheck } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { signUp } from "@/app/actions/auth";
+import { PwaInstallButton } from "@/components/PwaInstallButton";
 import { useState, useTransition } from "react";
 
 export default function SignupPage() {
@@ -115,6 +116,10 @@ export default function SignupPage() {
             )}
           </button>
             </form>
+
+            <div className="mt-6 pt-6 border-t border-white/10">
+              <PwaInstallButton />
+            </div>
 
             <p className="text-center text-sm text-muted-foreground mt-6">
               Already have an account? <Link href="/login" className="text-white hover:underline font-medium">Sign in</Link>

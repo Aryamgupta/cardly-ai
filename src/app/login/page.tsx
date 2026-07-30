@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { signIn } from "@/app/actions/auth";
+import { PwaInstallButton } from "@/components/PwaInstallButton";
 import { useState, useTransition } from "react";
 
 export default function LoginPage() {
@@ -80,7 +81,7 @@ export default function LoginPage() {
             />
           </div>
 
-          <button 
+          <button
             type="submit"
             disabled={isPending}
             className="w-full bg-primary text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -92,6 +93,10 @@ export default function LoginPage() {
             )}
           </button>
         </form>
+
+        <div className="mt-6  pt-6 border-t border-white/10">
+          <PwaInstallButton />
+        </div>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
           Don&lsquo;t have an account?{" "}

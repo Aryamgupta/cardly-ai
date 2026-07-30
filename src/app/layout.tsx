@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
@@ -16,6 +16,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Cardly AI | Smart Business Card Scanner",
   description: "Instantly digitize business cards with AI. Extract contact details, infer geolocations, and save directly to your phone contacts with one tap.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Cardly",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0B1020",
 };
 
 export default function RootLayout({

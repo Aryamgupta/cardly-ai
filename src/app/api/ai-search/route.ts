@@ -29,11 +29,11 @@ async function callGeminiEmbed(text: string): Promise<number[]> {
       }),
     }
   );
-
+  
   if (!res.ok) {
     throw new Error(`Gemini API error: ${res.statusText}`);
   }
-
+  
   const data = await res.json();
   const values = data?.embedding?.values as number[] | undefined;
   if (!values || values.length === 0) throw new Error("Empty embedding returned");
@@ -98,8 +98,8 @@ export async function POST(request: NextRequest) {
       ...match,
       image_url: match.original_image_path
         ? signedUrlMap[match.original_image_path] ||
-        signedUrlMap[match.original_image_path.replace(/^\//, "")] ||
-        null
+          signedUrlMap[match.original_image_path.replace(/^\//, "")] ||
+          null
         : null,
     }));
 
@@ -115,17 +115,17 @@ export async function POST(request: NextRequest) {
           const prompt = `
 You are an AI assistant for a smart Rolodex. The user searched for: "${query}".
 Here are the top matches found:
-${processedMatches.map((m: ProcessedContactMatch, i: number) => `${i + 1}. ${m.full_name} - ${m.designation || 'Unknown Title'} at ${m.company_name || 'Unknown Company'} (Relevance: ${Math.round(m.similarity * 100)}%)`).join('\n')}
+${processedMatches.map((m: ProcessedContactMatch, i: number) => `${i+1}. ${m.full_name} - ${m.designation || 'Unknown Title'} at ${m.company_name || 'Unknown Company'} (Relevance: ${Math.round(m.similarity * 100)}%)`).join('\n')}
 
 Write a very brief (1-2 sentences) natural conversational response introducing these contacts. Be friendly. No markdown formatting.
           `;
-
+          
           const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
           const streamResult = await ai.models.generateContentStream({
             model: "gemini-flash-lite-latest",
             contents: prompt,
           });
-
+          
           for await (const chunk of streamResult) {
             if (chunk.text) {
               await writer.write(encoder.encode(JSON.stringify({ type: 'text', chunk: chunk.text }) + "\n"));
