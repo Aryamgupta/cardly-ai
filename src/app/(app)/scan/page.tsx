@@ -21,7 +21,8 @@ export default function ScanPage() {
   const [scanStep, setScanStep] = useState<"front" | "back_prompt" | "back" | "event_tag">("front");
   const [eventName, setEventName] = useState("");
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -132,7 +133,7 @@ export default function ScanPage() {
 
   const captureCamera = () => {
     if (webRTCError || !videoRef.current?.srcObject) {
-      fileInputRef.current?.click();
+      cameraInputRef.current?.click();
       return;
     }
 
@@ -215,7 +216,7 @@ export default function ScanPage() {
           <div className="w-full max-w-sm bg-white/10 backdrop-blur-xl p-8 rounded-3xl border border-white/10 shadow-2xl space-y-6">
             <h2 className="text-2xl font-bold text-center">📍 Tag this card?</h2>
             <p className="text-white/70 text-center text-sm">
-              Met them at a conference or event? Tag it now so you can search for "Who did I meet at GITEX?" later.
+              Met them at a conference or event? Tag it now so you can search for &quot;Who did I meet at GITEX?&quot; later.
             </p>
             <input 
               type="text" 
@@ -249,8 +250,15 @@ export default function ScanPage() {
       <input
         type="file"
         accept="image/*"
+        ref={galleryInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+      />
+      <input
+        type="file"
+        accept="image/*"
         capture="environment"
-        ref={fileInputRef}
+        ref={cameraInputRef}
         onChange={handleFileChange}
         className="hidden"
       />
@@ -362,7 +370,7 @@ export default function ScanPage() {
       {!isScanning && (
         <div className="p-8 pb-12 flex justify-between items-center bg-gradient-to-t from-black via-black/80 to-transparent z-10">
           <button
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => galleryInputRef.current?.click()}
             className="p-4 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition-colors"
           >
             <ImageIcon className="w-6 h-6" />
@@ -376,7 +384,7 @@ export default function ScanPage() {
           </button>
 
           <button
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => cameraInputRef.current?.click()}
             className="p-4 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition-colors"
           >
             <Camera className="w-6 h-6" />

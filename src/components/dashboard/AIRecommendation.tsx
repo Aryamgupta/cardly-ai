@@ -2,6 +2,7 @@ import { Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/server";
+import { getAvatar } from "@/utils/common/common";
 
 export async function AIRecommendation() {
   const supabase = await createClient();
@@ -62,10 +63,9 @@ export async function AIRecommendation() {
         >
           <div className="w-12 h-12 rounded-full bg-slate-100 overflow-hidden relative flex-shrink-0">
             {imageUrl ? (
-              <Image
-                src={imageUrl}
+              <img
+                src={getAvatar(contact.full_name)}
                 alt={contact.full_name}
-                fill
                 className="object-cover"
                 sizes="48px"
               />

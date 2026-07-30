@@ -18,6 +18,8 @@ interface CardCorners {
 }
 
 interface ExtractedData {
+  is_valid_card: boolean;
+  invalid_reason: string | null;
   full_name: string | null;
   job_title: string | null;
   company_name: string | null;
@@ -85,8 +87,14 @@ export async function POST(request: NextRequest) {
       You MUST analyze ALL provided images (both front and back sides) and combine all relevant information across both. Do not ignore the second image if it exists.
       IMPORTANT: You must translate ALL extracted text (job title, company name, address, tags, summary, etc.) into English, irrespective of the original language on the business card. Names (full_name) should be kept in their original format but transliterated to the Latin alphabet if necessary.
       If a person's full name is NOT written on the card (e.g. it's just a general company card), you MUST use the company/firm name as the 'full_name'.
+      
+      CRITICAL VALIDATION STEP:
+      First, evaluate if the uploaded image(s) represent a valid business card. If the image is completely blank, a random picture (e.g., a landscape, a person, a dog), or just arbitrary text that is not a business card, you MUST set "is_valid_card" to false, and provide a short explanation in "invalid_reason" (e.g., "The image appears to be a blank wall" or "This is a picture of a dog, not a business card"). If it is a valid business card, set "is_valid_card" to true and "invalid_reason" to null.
+      
       Return the data strictly as a JSON object matching the following structure exactly (use null if a field is not found):
       {
+        "is_valid_card": Boolean,
+        "invalid_reason": "String",
         "full_name": "String",
         "job_title": "String",
         "company_name": "String",
@@ -196,6 +204,21 @@ export async function POST(request: NextRequest) {
 
     let finalImagePath = imagePath;
     let finalBackImagePath = backImagePath;
+
+    if (!extractedData.is_valid_card) {
+      // Clean up storage
+      const pathsToDelete = [imagePath];
+      if (backImagePath) pathsToDelete.push(backImagePath);
+      await supabase.storage.from("business-cards").remove(pathsToDelete);
+
+      // Clean up database
+      await supabase.from("cards").delete().eq("id", cardId);
+
+      return NextResponse.json(
+        { error: extractedData.invalid_reason || "The uploaded image does not appear to be a valid business card." },
+        { status: 422 }
+      );
+    }
 
     if (extractedData.front_card_corners) {
        finalImagePath = await cropImage(arrayBuffer, extractedData.front_card_corners, imagePath, supabase) || imagePath;
