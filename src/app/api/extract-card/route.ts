@@ -240,6 +240,7 @@ export async function POST(request: NextRequest) {
       if (existingCards && existingCards.length > 0) {
         let isDuplicate = false;
         let dupReason = "";
+        let existingId = "";
         
         const newEmail = extractedData.email?.toLowerCase().trim();
         const newName = extractedData.full_name?.toLowerCase().trim();
@@ -250,6 +251,7 @@ export async function POST(request: NextRequest) {
             if (hasMatch) {
               isDuplicate = true;
               dupReason = "email address";
+              existingId = existing.id;
               break;
             }
           }
@@ -258,15 +260,22 @@ export async function POST(request: NextRequest) {
             if (existing.full_name.toLowerCase().trim() === newName) {
               isDuplicate = true;
               dupReason = "person";
+              existingId = existing.id;
               break;
             }
           }
         }
 
         if (isDuplicate) {
-          await supabase.from("cards").delete().eq("id", cardId);
+          // DO NOT delete the card yet, wait for user confirmation
           return NextResponse.json(
-            { error: `Duplicate contact detected. You already have a card for this ${dupReason}.` },
+            { 
+              error: `Duplicate contact detected.`, 
+              is_duplicate: true,
+              duplicate_reason: dupReason,
+              existing_card_id: existingId,
+              new_card_id: cardId
+            },
             { status: 409 }
           );
         }

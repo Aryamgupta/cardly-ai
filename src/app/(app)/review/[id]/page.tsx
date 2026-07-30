@@ -8,7 +8,7 @@ import { DiscardButton } from "./DiscardButton";
 import { SubmitReviewButton } from "./SubmitReviewButton";
 import { enrichAndEmbedContact } from "@/services/ai/enrichContact";
 
-export default async function ReviewPage({ params }: { params: { id: string } }) {
+export default async function ReviewPage({ params, searchParams }: { params: { id: string }, searchParams: Promise<{ overwrite?: string }> }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -19,6 +19,8 @@ export default async function ReviewPage({ params }: { params: { id: string } })
   // Await the params object before using its properties in Next.js 15
   const resolvedParams = await params;
   const { id } = resolvedParams;
+  const resolvedSearchParams = await searchParams;
+  const overwriteId = resolvedSearchParams?.overwrite;
 
   const { data: card } = await supabase
     .from('cards')
@@ -77,22 +79,30 @@ export default async function ReviewPage({ params }: { params: { id: string } })
       event_name: card.event_name,
     };
 
+    const overwriteIdInput = formData.get("overwrite_id") as string;
+    const targetId = overwriteIdInput || id;
+
     const { error } = await supabase
       .from('cards')
       .update({
         ...contactData,
         processing_status: 'confirmed'
       })
-      .eq('id', id);
+      .eq('id', targetId);
 
     if (error) {
       console.error(error);
       throw new Error("Failed to save card");
     }
+    
+    if (overwriteIdInput && targetId !== id) {
+      // Delete the duplicate draft card since we updated the existing one
+      await supabase.from('cards').delete().eq('id', id);
+    }
 
     // Fire enrichment as a background task — user is not blocked
-    enrichAndEmbedContact(id, contactData)
-      .catch(err => console.error('Enrichment failed for card:', id, err));
+    enrichAndEmbedContact(targetId, contactData)
+      .catch(err => console.error('Enrichment failed for card:', targetId, err));
     revalidatePath("/", "layout");
     const name = formData.get("full_name") as string || "Contact";
     redirect(`/dashboard?toast=contact-saved&name=${encodeURIComponent(name)}`);
@@ -121,6 +131,7 @@ export default async function ReviewPage({ params }: { params: { id: string } })
           <CardImages frontUrl={imageUrl} backUrl={backImageUrl} />
 
           <form action={saveCard} id="review-form" className="space-y-5">
+            {overwriteId && <input type="hidden" name="overwrite_id" value={overwriteId} />}
             <div className="bg-white rounded-2xl border border-border p-5 shadow-sm space-y-4">
               <h2 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-2">Personal Details</h2>
               <div className="space-y-1.5">

@@ -20,6 +20,7 @@ export default function ScanPage() {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [scanStep, setScanStep] = useState<"front" | "back_prompt" | "back" | "event_tag">("front");
   const [eventName, setEventName] = useState("");
+  const [duplicateWarning, setDuplicateWarning] = useState<any>(null);
 
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -97,6 +98,11 @@ export default function ScanPage() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => null);
+        if (errorData?.is_duplicate) {
+           setIsScanning(false);
+           setDuplicateWarning(errorData);
+           return;
+        }
         throw new Error(errorData?.error || "AI extraction failed");
       }
 
@@ -182,8 +188,8 @@ export default function ScanPage() {
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col items-center justify-center p-6">
-          <img src={capturedImage} alt="Front of card" className="w-full max-w-sm rounded-2xl shadow-2xl mb-8 border border-white/20" />
+        <div className="flex-1 flex flex-col items-center justify-center p-6 overflow-y-auto">
+          <img src={capturedImage} alt="Front of card" className="w-full max-w-sm max-h-[50vh] object-contain rounded-2xl shadow-2xl mb-8 border border-white/20" />
           
           <div className="w-full max-w-sm space-y-4">
             <button 
@@ -239,6 +245,42 @@ export default function ScanPage() {
                 {eventName.trim() ? "Save & Process" : "Process"}
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (duplicateWarning) {
+    return (
+      <div className="fixed inset-0 bg-[#0B1020] text-white z-50 flex flex-col items-center justify-center p-6">
+        <div className="w-full max-w-sm bg-white/10 backdrop-blur-xl p-8 rounded-3xl border border-white/10 shadow-2xl space-y-6">
+          <h2 className="text-2xl font-bold text-center text-orange-400">Duplicate Detected</h2>
+          <p className="text-white/80 text-center text-sm">
+            You already have a card for this {duplicateWarning.duplicate_reason}. What would you like to do?
+          </p>
+          <div className="flex flex-col gap-3 pt-4">
+            <button 
+              onClick={() => {
+                router.push(`/review/${duplicateWarning.new_card_id}?overwrite=${duplicateWarning.existing_card_id}`);
+              }}
+              className="w-full py-4 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors"
+            >
+              Update Existing Card
+            </button>
+            <button 
+              onClick={async () => {
+                await supabase.from("cards").delete().eq("id", duplicateWarning.new_card_id);
+                setDuplicateWarning(null);
+                setScanStep("front");
+                setFrontFile(null);
+                setBackFile(null);
+                setCapturedImage(null);
+              }}
+              className="w-full py-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-colors"
+            >
+              Discard New Entry
+            </button>
           </div>
         </div>
       </div>
