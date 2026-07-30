@@ -17,11 +17,12 @@ export default async function DashboardPage() {
   // Fetch profile (fast)
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name')
+    .select('full_name, avatar_url')
     .eq('id', user?.id)
     .single();
 
   const firstName = profile?.full_name ? profile.full_name.split(' ')[0] : 'User';
+  const avatarUrl = profile?.avatar_url || null;
 
   const greeting = () => {
     const hour = new Date().getHours();
@@ -38,7 +39,11 @@ export default async function DashboardPage() {
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/20">
-            <UserIcon className="text-primary w-5 h-5" />
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <UserIcon className="text-primary w-5 h-5" />
+            )}
           </div>
           <div>
             <p className="text-sm text-muted-foreground">{greeting()}</p>

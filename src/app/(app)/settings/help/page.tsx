@@ -19,6 +19,10 @@ const FAQS = [
   {
     question: "Is my data secure?",
     answer: "Absolutely. We use enterprise-grade encryption and strict row-level security policies in our database. Your contacts are only visible to you."
+  },
+  {
+    question: "How do I clean up empty or failed scans?",
+    answer: "You can go to Settings > Data Management and click 'Clean Up Empty Cards'. This will queue a background task to safely delete any cards where the scan failed or the primary details are completely empty. You will receive a notification when it's done."
   }
 ];
 

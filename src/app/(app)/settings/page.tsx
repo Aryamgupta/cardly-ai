@@ -1,4 +1,4 @@
-import { User, Bell, Shield, LogOut, ChevronRight, Link2, HelpCircle, Pencil } from "lucide-react";
+import { User, Bell, Shield, LogOut, ChevronRight, Link2, HelpCircle, Pencil, Database } from "lucide-react";
 import { signOut } from "@/app/actions/auth";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
@@ -6,7 +6,7 @@ import { createClient } from "@/utils/supabase/server";
 export default async function SettingsPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  
+
   // Fetch latest profile from DB for realtime updates
   const { data: profile } = await supabase
     .from("profiles")
@@ -22,7 +22,7 @@ export default async function SettingsPage() {
   return (
     <div className="p-6 min-h-screen bg-[#F8FAFC] pb-24 font-sans">
       <h1 className="text-[22px] font-bold mb-8 text-[#0f172a]">Settings</h1>
-      
+
       <div className="space-y-8">
         {/* Profile Section */}
         <div className="flex items-center gap-4">
@@ -70,7 +70,18 @@ export default async function SettingsPage() {
             </div>
             <div className="flex-1">
               <h3 className="font-bold text-[#0B1020] text-[15px]">Privacy & Security</h3>
-              <p className="text-[13px] text-[#64748b] mt-0.5">Password, biometric, and data sharing</p>
+              <p className="text-[13px] text-[#64748b] mt-0.5">Manage your passkeys and passwords</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-[#94a3b8]" />
+          </Link>
+
+          <Link href="/settings/data" className="flex items-center gap-4 p-5 border-b border-[#f1f5f9] hover:bg-slate-50 cursor-pointer transition-colors group">
+            <div className="w-12 h-12 bg-[#EEF2FF] text-[#5551FF] rounded-2xl flex items-center justify-center group-hover:bg-[#E0E7FF] transition-colors">
+              <Database className="w-6 h-6" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-[#0B1020] text-[15px]">Data Management</h3>
+              <p className="text-[13px] text-[#64748b] mt-0.5">Export cards and clean up empty scans</p>
             </div>
             <ChevronRight className="w-5 h-5 text-[#94a3b8]" />
           </Link>
