@@ -6,6 +6,10 @@ import { Loader2, Save, Upload, Camera } from "lucide-react";
 import { toast } from "sonner";
 import { CustomToast } from "@/components/ui/CustomToast";
 import { createClient } from "@/utils/supabase/client";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { accountProfileSchema } from "@/lib/validations";
+import { z } from "zod";
 
 interface AccountFormProps {
   userId: string;
@@ -15,15 +19,30 @@ interface AccountFormProps {
   initialAvatarUrl: string;
 }
 
+type AccountFormValues = z.infer<typeof accountProfileSchema>;
+
 export function AccountForm({ userId, initialName, initialJobTitle = "", initialEmail, initialAvatarUrl }: AccountFormProps) {
-  const [name, setName] = useState(initialName);
-  const [jobTitle, setJobTitle] = useState(initialJobTitle);
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const supabase = createClient();
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isDirty },
+  } = useForm<AccountFormValues>({
+    resolver: zodResolver(accountProfileSchema),
+    defaultValues: {
+      full_name: initialName,
+      job_title: initialJobTitle,
+    }
+  });
+
+  const currentName = watch("full_name") || "User";
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -59,8 +78,9 @@ export function AccountForm({ userId, initialName, initialJobTitle = "", initial
 
       setAvatarUrl(publicUrl);
       
-      // Auto-save the new avatar URL
-      await updateProfile(name, publicUrl, jobTitle);
+      // Auto-save the new avatar URL with current form values
+      const currentValues = watch();
+      await updateProfile(currentValues.full_name, publicUrl, currentValues.job_title || "");
       
       toast.custom((t) => (
         <CustomToast 
@@ -86,11 +106,10 @@ export function AccountForm({ userId, initialName, initialJobTitle = "", initial
     }
   };
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: AccountFormValues) => {
     setIsSaving(true);
     try {
-      await updateProfile(name, avatarUrl, jobTitle);
+      await updateProfile(data.full_name, avatarUrl, data.job_title || "");
       toast.custom((t) => (
         <CustomToast 
           id={t}
@@ -113,10 +132,10 @@ export function AccountForm({ userId, initialName, initialJobTitle = "", initial
     }
   };
 
-  const displayAvatar = avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=random`;
+  const displayAvatar = avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentName)}&background=random`;
 
   return (
-    <form onSubmit={handleSave} className="max-w-2xl mx-auto space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl mx-auto space-y-6">
       <div className="bg-white rounded-3xl border border-border shadow-sm overflow-hidden">
         <div className="p-6 border-b border-border">
           <h2 className="text-xl font-bold text-foreground">Profile Information</h2>
@@ -175,23 +194,26 @@ export function AccountForm({ userId, initialName, initialJobTitle = "", initial
               <label className="block text-sm font-medium text-foreground mb-1.5">Full Name</label>
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                {...register("full_name")}
+                className={`w-full px-4 py-2.5 rounded-xl border ${errors.full_name ? 'border-red-500' : 'border-input'} bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all`}
                 placeholder="Your Name"
-                required
               />
+              {errors.full_name && (
+                <p className="text-red-500 text-xs mt-1.5">{errors.full_name.message}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Job Title</label>
               <input
                 type="text"
-                value={jobTitle}
-                onChange={(e) => setJobTitle(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                {...register("job_title")}
+                className={`w-full px-4 py-2.5 rounded-xl border ${errors.job_title ? 'border-red-500' : 'border-input'} bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all`}
                 placeholder="e.g. Senior Product Strategist"
               />
+              {errors.job_title && (
+                <p className="text-red-500 text-xs mt-1.5">{errors.job_title.message}</p>
+              )}
             </div>
             
             <div>
@@ -211,7 +233,7 @@ export function AccountForm({ userId, initialName, initialJobTitle = "", initial
         <div className="p-4 bg-slate-50 border-t border-border flex justify-end">
           <button
             type="submit"
-            disabled={isSaving || isUploading || (name === initialName && avatarUrl === initialAvatarUrl)}
+            disabled={isSaving || isUploading || (!isDirty && avatarUrl === initialAvatarUrl)}
             className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}

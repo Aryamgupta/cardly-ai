@@ -5,15 +5,32 @@ import { ArrowRight, Loader2, AlertCircle, ArrowLeft, MailCheck } from "lucide-r
 import { Logo } from "@/components/ui/Logo";
 import { resetPassword } from "@/app/actions/auth";
 import { useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { forgotPasswordSchema } from "@/lib/validations";
+import { z } from "zod";
+
+type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
 
 export default function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  async function onSubmit(formData: FormData) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ForgotPasswordValues>({
+    resolver: zodResolver(forgotPasswordSchema),
+  });
+
+  const onSubmit = async (data: ForgotPasswordValues) => {
     setError(null);
     startTransition(async () => {
+      const formData = new FormData();
+      formData.append("email", data.email);
+      
       const result = await resetPassword(formData);
       if (result?.error) {
         setError(result.error);
@@ -21,7 +38,7 @@ export default function ForgotPasswordPage() {
         setSuccess(true);
       }
     });
-  }
+  };
 
   return (
     <div className="min-h-screen bg-tertiary text-foreground flex flex-col items-center justify-center p-6 relative">
@@ -59,7 +76,7 @@ export default function ForgotPasswordPage() {
             </div>
           </div>
         ) : (
-          <form action={onSubmit} className="space-y-4 mt-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-8">
             {error && (
               <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg flex items-center gap-2 text-sm">
                 <AlertCircle className="w-4 h-4 shrink-0" />
@@ -71,12 +88,14 @@ export default function ForgotPasswordPage() {
               <label className="text-sm font-medium text-white" htmlFor="email">Email address</label>
               <input 
                 id="email" 
-                name="email"
                 type="email" 
                 placeholder="alex@example.com" 
-                required
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+                {...register("email")}
+                className={`w-full bg-white/5 border ${errors.email ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors`}
               />
+              {errors.email && (
+                <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>
+              )}
             </div>
 
             <button 

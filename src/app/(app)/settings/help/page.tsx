@@ -6,6 +6,10 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { CustomToast } from "@/components/ui/CustomToast";
 import { submitSupportRequest } from "@/app/actions/support";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { supportSchema } from "@/lib/validations";
+import { z } from "zod";
 
 const FAQS = [
   {
@@ -26,17 +30,28 @@ const FAQS = [
   }
 ];
 
+type SupportFormValues = z.infer<typeof supportSchema>;
+
 export default function HelpSupportPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [isPending, startTransition] = useTransition();
-  const [message, setMessage] = useState("");
 
-  const handleSupportSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm<SupportFormValues>({
+    resolver: zodResolver(supportSchema),
+  });
+
+  const messageValue = watch("message", "");
+
+  const handleSupportSubmit = (data: SupportFormValues) => {
     startTransition(async () => {
       const formData = new FormData();
-      formData.append("message", message);
+      formData.append("message", data.message);
       
       const result = await submitSupportRequest(formData);
       
@@ -50,7 +65,7 @@ export default function HelpSupportPage() {
           />
         ));
       } else {
-        setMessage("");
+        reset();
         toast.custom((t) => (
           <CustomToast 
             id={t}
@@ -116,24 +131,27 @@ export default function HelpSupportPage() {
             <p className="text-sm text-muted-foreground mt-1">Need more help? Send us a message.</p>
           </div>
           
-          <form onSubmit={handleSupportSubmit} className="p-6 space-y-4">
+          <form onSubmit={handleSubmit(handleSupportSubmit)} className="p-6 space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">How can we help?</label>
               <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                {...register("message")}
                 placeholder="Describe your issue or ask a question..."
-                required
                 disabled={isPending}
                 rows={4}
-                className="w-full bg-slate-50 border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+                maxLength={1000}
+                className={`w-full bg-slate-50 border ${errors.message ? 'border-red-500' : 'border-border'} rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed`}
               />
+              <div className="flex justify-between items-start mt-1">
+                <p className="text-red-500 text-xs">{errors.message?.message}</p>
+                <span className="text-xs text-muted-foreground ml-auto">{messageValue.length}/1000</span>
+              </div>
             </div>
 
             <div className="pt-2 flex justify-end">
               <button 
                 type="submit"
-                disabled={isPending || !message.trim()}
+                disabled={isPending || messageValue.trim().length === 0}
                 className="bg-primary text-white px-6 py-2.5 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isPending ? (

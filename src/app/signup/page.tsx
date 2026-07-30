@@ -4,7 +4,6 @@ import Link from "next/link";
 import { ArrowRight, Loader2, AlertCircle, ArrowLeft, MailCheck } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { signUp } from "@/app/actions/auth";
-import { PwaInstallButton } from "@/components/PwaInstallButton";
 import { useState, useTransition } from "react";
 
 export default function SignupPage() {
@@ -48,7 +47,7 @@ export default function SignupPage() {
             </div>
             <h2 className="text-xl font-bold text-white">Check your email</h2>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              We've sent a verification link to your email address. Please verify your account before signing in.
+              We`&apos;ve sent a verification link to your email address. Please verify your account before signing in.
             </p>
             <div className="pt-4">
               <Link 
@@ -116,10 +115,6 @@ export default function SignupPage() {
             )}
           </button>
             </form>
-
-            <div className="mt-6 pt-6 border-t border-white/10">
-              <PwaInstallButton />
-            </div>
 
             <p className="text-center text-sm text-muted-foreground mt-6">
               Already have an account? <Link href="/login" className="text-white hover:underline font-medium">Sign in</Link>

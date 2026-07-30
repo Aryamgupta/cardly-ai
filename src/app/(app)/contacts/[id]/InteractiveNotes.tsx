@@ -6,8 +6,14 @@ import { Loader2, Check } from "lucide-react";
 
 export function InteractiveNotes({ id, initialNotes }: { id: string, initialNotes: string }) {
   const [notes, setNotes] = useState(initialNotes);
+  const [prevInitial, setPrevInitial] = useState(initialNotes);
   const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  if (initialNotes !== prevInitial) {
+    setPrevInitial(initialNotes);
+    setNotes(initialNotes);
+  }
 
   const autoResize = () => {
     if (textareaRef.current) {
@@ -42,9 +48,9 @@ export function InteractiveNotes({ id, initialNotes }: { id: string, initialNote
         onChange={(e) => setNotes(e.target.value)}
         onBlur={handleBlur}
         placeholder="Add some notes about this contact..."
-        className="w-full bg-transparent border-0 p-0 text-sm text-foreground focus:ring-0 resize-none min-h-[60px]"
+        className="w-full bg-slate-100/50 hover:bg-slate-100 border border-transparent hover:border-border focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary p-3 rounded-lg text-sm text-foreground resize-none min-h-[80px] transition-all"
       />
-      <div className="absolute right-0 bottom-0 text-muted-foreground flex items-center justify-end pointer-events-none">
+      <div className="absolute right-3 bottom-3 text-muted-foreground flex items-center justify-end pointer-events-none">
         {status === "saving" && <Loader2 className="w-3 h-3 animate-spin text-primary" />}
         {status === "saved" && <Check className="w-3 h-3 text-green-500" />}
       </div>

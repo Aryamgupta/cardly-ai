@@ -4,20 +4,38 @@ import { ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { updatePassword } from "@/app/actions/auth";
 import { useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { updatePasswordSchema } from "@/lib/validations";
+import { z } from "zod";
+import { PasswordInput } from "@/components/ui/PasswordInput";
+
+type UpdatePasswordValues = z.infer<typeof updatePasswordSchema>;
 
 export default function UpdatePasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  async function onSubmit(formData: FormData) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<UpdatePasswordValues>({
+    resolver: zodResolver(updatePasswordSchema),
+  });
+
+  const onSubmit = async (data: UpdatePasswordValues) => {
     setError(null);
     startTransition(async () => {
+      const formData = new FormData();
+      formData.append("password", data.password);
+      
       const result = await updatePassword(formData);
       if (result?.error) {
         setError(result.error);
       }
     });
-  }
+  };
 
   return (
     <div className="min-h-screen bg-tertiary text-foreground flex flex-col items-center justify-center p-6 relative">
@@ -30,7 +48,7 @@ export default function UpdatePasswordPage() {
           </div>
         </div>
 
-        <form action={onSubmit} className="space-y-4 mt-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-8">
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg flex items-center gap-2 text-sm">
               <AlertCircle className="w-4 h-4 shrink-0" />
@@ -42,30 +60,32 @@ export default function UpdatePasswordPage() {
             <label className="text-sm font-medium text-white" htmlFor="password">
               New Password
             </label>
-            <input
+            <PasswordInput
               id="password"
-              name="password"
-              type="password"
               placeholder="••••••••"
-              required
-              minLength={6}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+              {...register("password")}
+              error={errors.password?.message}
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
             />
+            {errors.password && (
+              <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-white" htmlFor="confirmPassword">
               Confirm Password
             </label>
-            <input
+            <PasswordInput
               id="confirmPassword"
-              name="confirmPassword"
-              type="password"
               placeholder="••••••••"
-              required
-              minLength={6}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+              {...register("confirmPassword")}
+              error={errors.confirmPassword?.message}
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
             />
+            {errors.confirmPassword && (
+              <p className="text-red-400 text-xs mt-1">{errors.confirmPassword.message}</p>
+            )}
           </div>
 
           <button 

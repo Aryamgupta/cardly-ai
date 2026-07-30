@@ -1,21 +1,39 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronLeft, Loader2, Shield, Activity } from "lucide-react";
+import { ChevronLeft, Loader2, Shield } from "lucide-react";
 import { changePassword } from "@/app/actions/auth";
-import { useTransition, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import { toast } from "sonner";
 import { CustomToast } from "@/components/ui/CustomToast";
 import { PasskeyManager } from "./PasskeyManager";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { changePasswordSchema } from "@/lib/validations";
+import { z } from "zod";
+import { PasswordInput } from "@/components/ui/PasswordInput";
+
+type ChangePasswordValues = z.infer<typeof changePasswordSchema>;
 
 export default function PrivacySecurityPage() {
   const [isPending, startTransition] = useTransition();
-  const [analyticsEnabled, setAnalyticsEnabled] = useState(true);
-  const router = useRouter();
 
-  async function onSubmit(formData: FormData) {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ChangePasswordValues>({
+    resolver: zodResolver(changePasswordSchema),
+  });
+
+  const onSubmit = async (data: ChangePasswordValues) => {
     startTransition(async () => {
+      const formData = new FormData();
+      formData.append("currentPassword", data.currentPassword);
+      formData.append("newPassword", data.newPassword);
+      formData.append("confirmPassword", data.confirmPassword);
+
       const result = await changePassword(formData);
       if (result?.error) {
         toast.custom((t) => (
@@ -27,6 +45,7 @@ export default function PrivacySecurityPage() {
           />
         ));
       } else {
+        reset();
         toast.custom((t) => (
           <CustomToast 
             id={t}
@@ -37,7 +56,7 @@ export default function PrivacySecurityPage() {
         ));
       }
     });
-  }
+  };
 
   return (
     <div className="flex-1 pb-24 md:pb-6 relative w-full pt-6 font-sans">
@@ -69,49 +88,50 @@ export default function PrivacySecurityPage() {
             <p className="text-sm text-muted-foreground mt-1">Ensure your account is using a long, random password to stay secure.</p>
           </div>
           
-          <form action={onSubmit} className="p-6 space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5">
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground" htmlFor="currentPassword">
                 Current Password
               </label>
-              <input
+              <PasswordInput
                 id="currentPassword"
-                name="currentPassword"
-                type="password"
                 placeholder="••••••••"
-                required
-                className="w-full bg-slate-50 border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                {...register("currentPassword")}
+                error={errors.currentPassword?.message}
               />
+              {errors.currentPassword && (
+                <p className="text-red-500 text-xs mt-1">{errors.currentPassword.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground" htmlFor="newPassword">
                 New Password
               </label>
-              <input
+              <PasswordInput
                 id="newPassword"
-                name="newPassword"
-                type="password"
                 placeholder="••••••••"
-                required
-                minLength={6}
-                className="w-full bg-slate-50 border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                {...register("newPassword")}
+                error={errors.newPassword?.message}
               />
+              {errors.newPassword && (
+                <p className="text-red-500 text-xs mt-1">{errors.newPassword.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground" htmlFor="confirmPassword">
                 Confirm New Password
               </label>
-              <input
+              <PasswordInput
                 id="confirmPassword"
-                name="confirmPassword"
-                type="password"
                 placeholder="••••••••"
-                required
-                minLength={6}
-                className="w-full bg-slate-50 border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                {...register("confirmPassword")}
+                error={errors.confirmPassword?.message}
               />
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-xs mt-1">{errors.confirmPassword.message}</p>
+              )}
             </div>
 
             <div className="pt-2 flex justify-end">

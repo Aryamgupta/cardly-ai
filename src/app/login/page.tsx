@@ -4,7 +4,6 @@ import Link from "next/link";
 import { ArrowRight, Loader2, AlertCircle, ArrowLeft, Fingerprint } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { signIn } from "@/app/actions/auth";
-import { PwaInstallButton } from "@/components/PwaInstallButton";
 import { useState, useTransition } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
@@ -124,10 +123,6 @@ export default function LoginPage() {
           <Fingerprint className="w-5 h-5" />
           Sign in with Passkey / Biometrics
         </button>
-
-        <div className="mt-6  pt-6 border-t border-white/10">
-          <PwaInstallButton />
-        </div>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
           Don&lsquo;t have an account?{" "}
