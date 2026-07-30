@@ -15,6 +15,7 @@
     "@supabase/supabase-js": "^2.110.9",
     "@techstark/opencv-js": "^5.0.0-release.1",
     "dotenv": "^17.4.2",
+    "jsqr": "^1.4.0",
     "lucide-react": "^1.27.0",
     "next": "16.2.12",
     "opencv-wasm": "^4.3.0-10",
