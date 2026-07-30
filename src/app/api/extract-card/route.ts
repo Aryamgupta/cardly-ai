@@ -202,6 +202,14 @@ export async function POST(request: NextRequest) {
       throw new Error("Invalid JSON returned by AI");
     }
 
+    if (extractedData.qr_url && extractedData.qr_url.includes("BEGIN:VCARD")) {
+      const vcardData = parseVCard(extractedData.qr_url);
+      extractedData = {
+        ...extractedData,
+        ...vcardData, // Overwrite with any fields found in the vcard
+      };
+    }
+
     let finalImagePath = imagePath;
     let finalBackImagePath = backImagePath;
 
@@ -431,4 +439,28 @@ async function cropImage(arrayBuffer: ArrayBuffer, corners: CardCorners, imagePa
 
 function pow(base: number, exp: number) {
   return Math.pow(base, exp);
+}
+
+function parseVCard(vcard: string): Partial<ExtractedData> {
+  const result: Partial<ExtractedData> = {};
+  
+  const fnMatch = vcard.match(/^FN:(.*)$/im);
+  if (fnMatch) result.full_name = fnMatch[1].trim();
+  
+  const orgMatch = vcard.match(/^ORG:(.*)$/im);
+  if (orgMatch) result.company_name = orgMatch[1].split(';')[0].trim();
+  
+  const titleMatch = vcard.match(/^TITLE:(.*)$/im);
+  if (titleMatch) result.job_title = titleMatch[1].trim();
+  
+  const emailMatch = vcard.match(/^EMAIL(?:;[^:]*)?:(.*)$/im);
+  if (emailMatch) result.email = emailMatch[1].trim();
+  
+  const telMatch = vcard.match(/^TEL(?:;[^:]*)?:(.*)$/im);
+  if (telMatch) result.phone = telMatch[1].trim();
+  
+  const urlMatch = vcard.match(/^URL(?:;[^:]*)?:(.*)$/im);
+  if (urlMatch) result.website = urlMatch[1].trim();
+
+  return result;
 }

@@ -21,6 +21,7 @@ export default function ScanPage() {
   const [scanStep, setScanStep] = useState<"front" | "back_prompt" | "back" | "event_tag">("front");
   const [eventName, setEventName] = useState("");
   const [duplicateWarning, setDuplicateWarning] = useState<any>(null);
+  const [resolvingAction, setResolvingAction] = useState<"update" | "discard" | null>(null);
 
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -210,7 +211,7 @@ export default function ScanPage() {
     );
   }
 
-  if (scanStep === "event_tag" && !isScanning) {
+  if (scanStep === "event_tag" && !isScanning && !duplicateWarning) {
     return (
       <div className="fixed inset-0 bg-[#0B1020] text-white z-50 flex flex-col">
         <div className="flex justify-between items-center p-6 z-10">
@@ -261,24 +262,31 @@ export default function ScanPage() {
           </p>
           <div className="flex flex-col gap-3 pt-4">
             <button 
+              disabled={!!resolvingAction}
               onClick={() => {
+                setResolvingAction("update");
                 router.push(`/review/${duplicateWarning.new_card_id}?overwrite=${duplicateWarning.existing_card_id}`);
               }}
-              className="w-full py-4 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors"
+              className="w-full py-4 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
             >
+              {resolvingAction === "update" && <Loader2 className="w-5 h-5 animate-spin" />}
               Update Existing Card
             </button>
             <button 
+              disabled={!!resolvingAction}
               onClick={async () => {
+                setResolvingAction("discard");
                 await supabase.from("cards").delete().eq("id", duplicateWarning.new_card_id);
                 setDuplicateWarning(null);
                 setScanStep("front");
                 setFrontFile(null);
                 setBackFile(null);
                 setCapturedImage(null);
+                setResolvingAction(null);
               }}
-              className="w-full py-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-colors"
+              className="w-full py-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
             >
+              {resolvingAction === "discard" && <Loader2 className="w-5 h-5 animate-spin" />}
               Discard New Entry
             </button>
           </div>
