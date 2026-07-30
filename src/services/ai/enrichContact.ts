@@ -14,6 +14,7 @@ interface ContactData {
   website?: string | null;
   address?: { text?: string } | null;
   notes?: string | null;
+  event_name?: string | null;
   ai_metadata?: { tags?: string[]; summary?: string } | null;
 }
 
@@ -114,6 +115,7 @@ Return ONLY the JSON object with no additional text or markdown.`;
       `Keywords: ${enrichment.ai_keywords?.join(", ")}.`,
       contact.address?.text && `Location: ${contact.address.text}.`,
       contact.notes && `Meeting context: ${contact.notes}.`,
+      contact.event_name && `Met at: ${contact.event_name}.`,
       contact.ai_metadata?.summary && `Card description: ${contact.ai_metadata.summary}.`,
     ]
       .filter(Boolean)

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import { toAppError } from '@/utils/errors';
 
 // Initialize a standard supabase client bypassing RLS, because this is a background cron job
 // We use the service role key to have access to all users data
@@ -152,7 +153,8 @@ export async function GET(request: Request) {
 
         emailsSent++;
       } catch (emailErr) {
-        console.error('Error sending email via Resend:', emailErr);
+        const appErr = toAppError(emailErr);
+        console.error('Error sending email via Resend:', appErr.message);
       }
     }
 
@@ -162,8 +164,8 @@ export async function GET(request: Request) {
       emailsSent
     });
   } catch (error: unknown) {
-    console.error('Cron Error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    const appErr = toAppError(error);
+    console.error('Cron Error:', appErr.message);
+    return NextResponse.json({ error: appErr.message }, { status: appErr.statusCode || 500 });
   }
 }

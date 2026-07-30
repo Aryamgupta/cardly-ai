@@ -21,7 +21,12 @@ export default function ChatPage() {
   const [query, setQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<ContactMatch[] | null>(null);
+  const [conversationalText, setConversationalText] = useState("");
   const [error, setError] = useState("");
+  
+  const [networkSummary, setNetworkSummary] = useState("");
+  const [isSummarizing, setIsSummarizing] = useState(false);
+  
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Focus input on load
@@ -35,6 +40,8 @@ export default function ChatPage() {
     setIsSearching(true);
     setError("");
     setQuery(searchQuery);
+    setConversationalText("");
+    setResults(null);
 
     try {
       const res = await fetch("/api/ai-search", {
@@ -48,9 +55,34 @@ export default function ChatPage() {
         throw new Error("Search failed");
       }
 
-      const data = await res.json();
-      console.log(data);
-      setResults(data.results);
+      const reader = res.body?.getReader();
+      if (!reader) return;
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || ""; // Keep the last incomplete line in buffer
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          try {
+            const parsed = JSON.parse(line);
+            if (parsed.type === "contacts") {
+              setResults(parsed.results);
+            } else if (parsed.type === "text") {
+              setConversationalText((prev) => prev + parsed.chunk);
+            }
+          } catch (e) {
+            console.error("Failed to parse chunk", line);
+          }
+        }
+      }
     } catch (err) {
       console.error(err);
       setError("Sorry, something went wrong while searching.");
@@ -58,6 +90,34 @@ export default function ChatPage() {
       setIsSearching(false);
     }
   };
+
+  const handleSummarizeNetwork = async () => {
+    setIsSummarizing(true);
+    setNetworkSummary("");
+    setResults(null);
+    setQuery("");
+    
+    try {
+      const res = await fetch("/api/network-summary", { method: "POST" });
+      if (!res.ok) throw new Error("Summarize failed");
+      
+      const reader = res.body?.getReader();
+      if (!reader) return;
+      
+      const decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        setNetworkSummary((prev) => prev + decoder.decode(value, { stream: true }));
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Sorry, couldn't summarize your network right now.");
+    } finally {
+      setIsSummarizing(false);
+    }
+  };
+
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
@@ -80,15 +140,26 @@ export default function ChatPage() {
           <Sparkles className="w-32 h-32 text-primary" />
         </div>
 
-        <h1 className="text-2xl font-bold text-foreground relative z-10 flex items-center gap-2">
-          Ask Cardly <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-        </h1>
-
-        {!results && (
-          <p className="text-muted-foreground mt-2 relative z-10 text-sm">
-            Describe who you're looking for, and Cardly's AI will find them in your network.
-          </p>
-        )}
+        <div className="flex justify-between items-start relative z-10">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              Ask Cardly <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+            </h1>
+            {!results && !networkSummary && (
+              <p className="text-muted-foreground mt-2 text-sm">
+                Describe who you&apos;re looking for, and Cardly&apos;s AI will find them in your network.
+              </p>
+            )}
+          </div>
+          <button 
+            onClick={handleSummarizeNetwork}
+            disabled={isSummarizing || isSearching}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/20 rounded-full text-xs font-medium transition-colors disabled:opacity-50"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Summarize Network
+          </button>
+        </div>
 
         <div className="mt-6 relative z-10 flex gap-2">
           <div className="relative flex-1">
@@ -147,6 +218,20 @@ export default function ChatPage() {
           </div>
         )}
 
+        {/* Network Summary State */}
+        {(networkSummary || isSummarizing) && (
+          <div className="bg-gradient-to-br from-indigo-50 to-white rounded-2xl p-6 shadow-sm border border-indigo-100 animate-in fade-in mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="w-5 h-5 text-indigo-500" />
+              <h3 className="font-semibold text-indigo-900">Your Network Summary</h3>
+            </div>
+            <p className="text-slate-700 leading-relaxed whitespace-pre-wrap text-sm">
+              {networkSummary}
+              {isSummarizing && <span className="inline-block w-1.5 h-4 ml-1 bg-indigo-400 animate-pulse rounded-sm align-middle" />}
+            </p>
+          </div>
+        )}
+
         {/* Loading State Skeleton */}
         {isSearching && !results && (
           <div className="space-y-4">
@@ -166,8 +251,21 @@ export default function ChatPage() {
         )}
 
         {/* Results State */}
-        {results && !isSearching && (
+        {results && (
           <div className="space-y-4 animate-in fade-in duration-500">
+            {conversationalText && (
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 mb-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <h3 className="font-semibold text-slate-800 text-sm">AI Response</h3>
+                </div>
+                <p className="text-slate-700 leading-relaxed text-sm">
+                  {conversationalText}
+                  {isSearching && <span className="inline-block w-1 h-3.5 ml-1 bg-slate-400 animate-pulse align-middle" />}
+                </p>
+              </div>
+            )}
+            
             <h3 className="text-sm font-semibold text-slate-700 px-1">
               {results.length > 0
                 ? `Found ${results.length} relevant contact${results.length === 1 ? '' : 's'}`
@@ -184,7 +282,7 @@ export default function ChatPage() {
                   No contacts closely matched your query. Try different keywords or add more contacts.
                 </p>
                 <button
-                  onClick={() => { setResults(null); setQuery(""); inputRef.current?.focus(); }}
+                  onClick={() => { setResults(null); setConversationalText(""); setQuery(""); inputRef.current?.focus(); }}
                   className="mt-6 px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full text-sm font-medium transition-colors"
                 >
                   Clear Search
@@ -193,7 +291,7 @@ export default function ChatPage() {
             ) : (
               <div className="space-y-3">
                 {results.map((contact, idx) => {
-                  return <SearchCard contact={contact} idx={idx} />
+                  return <SearchCard contact={contact} idx={idx} key={idx} />
                 })}
               </div>
             )}

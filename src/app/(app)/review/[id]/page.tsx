@@ -74,6 +74,7 @@ export default async function ReviewPage({ params }: { params: { id: string } })
       address: formData.get("address") ? { text: formData.get("address") as string } : {},
       social_links: socialsArray.length > 0 ? { links: socialsArray } : {},
       ai_metadata: updatedAiMetadata,
+      event_name: card.event_name,
     };
 
     const { error } = await supabase

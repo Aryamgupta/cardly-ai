@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { DashboardStats, DashboardStatsSkeleton } from "@/components/dashboard/DashboardStats";
 import { RecentScans, RecentScansSkeleton } from "@/components/dashboard/RecentScans";
 import { PendingFollowUps, PendingFollowUpsSkeleton } from "@/components/dashboard/PendingFollowUps";
+import { AIRecommendation } from "@/components/dashboard/AIRecommendation";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -46,6 +47,11 @@ export default async function DashboardPage() {
       {/* Stats Card (Lazy Loaded) */}
       <Suspense fallback={<DashboardStatsSkeleton />}>
         <DashboardStats />
+      </Suspense>
+
+      {/* Smart Suggestion (Lazy Loaded) */}
+      <Suspense fallback={null}>
+        <AIRecommendation />
       </Suspense>
 
       {/* Main Action (Instantly available) */}

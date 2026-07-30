@@ -8,6 +8,7 @@ import { createCard } from "@/services/cards/createCard";
 import { uploadCardImage } from "@/services/storage/uploadCardImage";
 import { createClient } from "@/utils/supabase/client";
 import { toast } from "sonner";
+import { toAppError } from "@/utils/errors";
 
 export default function ScanPage() {
   const [isScanning, setIsScanning] = useState(false);
@@ -15,8 +16,10 @@ export default function ScanPage() {
   const [webRTCError, setWebRTCError] = useState("");
   
   const [frontFile, setFrontFile] = useState<File | null>(null);
+  const [backFile, setBackFile] = useState<File | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const [scanStep, setScanStep] = useState<"front" | "back_prompt" | "back">("front");
+  const [scanStep, setScanStep] = useState<"front" | "back_prompt" | "back" | "event_tag">("front");
+  const [eventName, setEventName] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -48,7 +51,7 @@ export default function ScanPage() {
       }
     }
 
-    if (!isScanning && scanStep !== "back_prompt") {
+    if (!isScanning && scanStep !== "back_prompt" && scanStep !== "event_tag") {
       startCamera();
     }
 
@@ -68,7 +71,7 @@ export default function ScanPage() {
       if (!user) throw new Error("Not authenticated");
 
       setStatus("Creating record...");
-      const cardRecord = await createCard(user.id, "");
+      const cardRecord = await createCard(user.id, "", eventName);
       if (!cardRecord) throw new Error("Failed to create card record");
 
       setStatus("Uploading image(s)...");
@@ -99,9 +102,10 @@ export default function ScanPage() {
       setStatus("Done!");
       router.push(`/review/${cardRecord.id}`);
 
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err.message || "Something went wrong during scanning.");
+    } catch (err) {
+      const appErr = toAppError(err);
+      console.error(appErr);
+      toast.error(appErr.message || "Something went wrong during scanning.");
       setIsScanning(false);
       setScanStep("front");
       setFrontFile(null);
@@ -116,7 +120,8 @@ export default function ScanPage() {
       setFrontFile(file);
       setScanStep("back_prompt");
     } else if (scanStep === "back" && frontFile) {
-      startProcessing(frontFile, file);
+      setBackFile(file);
+      setScanStep("event_tag");
     }
   };
 
@@ -187,11 +192,52 @@ export default function ScanPage() {
               <Camera className="w-5 h-5" /> Scan Back of Card
             </button>
             <button 
-              onClick={() => frontFile && startProcessing(frontFile)}
+              onClick={() => { setScanStep("event_tag"); }}
               className="w-full py-4 bg-white/10 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-white/20 transition-colors"
             >
               Process Now <ArrowRight className="w-5 h-5" />
             </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (scanStep === "event_tag" && !isScanning) {
+    return (
+      <div className="fixed inset-0 bg-[#0B1020] text-white z-50 flex flex-col">
+        <div className="flex justify-between items-center p-6 z-10">
+          <button onClick={() => { setScanStep("front"); setFrontFile(null); setBackFile(null); setCapturedImage(null); }} className="p-2 bg-white/10 rounded-full backdrop-blur-md">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center p-6">
+          <div className="w-full max-w-sm bg-white/10 backdrop-blur-xl p-8 rounded-3xl border border-white/10 shadow-2xl space-y-6">
+            <h2 className="text-2xl font-bold text-center">📍 Tag this card?</h2>
+            <p className="text-white/70 text-center text-sm">
+              Met them at a conference or event? Tag it now so you can search for "Who did I meet at GITEX?" later.
+            </p>
+            <input 
+              type="text" 
+              placeholder="e.g. GITEX 2027, Tech Meetup..."
+              value={eventName}
+              onChange={e => setEventName(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white focus:border-primary focus:outline-none transition-colors"
+            />
+            <div className="flex gap-3 pt-2">
+              <button 
+                onClick={() => frontFile && startProcessing(frontFile, backFile || undefined)}
+                className="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-colors"
+              >
+                Skip
+              </button>
+              <button 
+                onClick={() => frontFile && startProcessing(frontFile, backFile || undefined)}
+                className="flex-1 py-3 bg-primary hover:bg-primary/90 text-white rounded-xl font-bold transition-colors"
+              >
+                {eventName.trim() ? "Save & Process" : "Process"}
+              </button>
+            </div>
           </div>
         </div>
       </div>

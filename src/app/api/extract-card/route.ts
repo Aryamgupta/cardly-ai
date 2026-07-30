@@ -2,6 +2,38 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@/utils/supabase/server";
 import sharp from "sharp";
+import { toAppError } from "@/utils/errors";
+import { SupabaseClient } from "@supabase/supabase-js";
+
+interface Point {
+  x: number;
+  y: number;
+}
+
+interface CardCorners {
+  top_left: Point;
+  top_right: Point;
+  bottom_right: Point;
+  bottom_left: Point;
+}
+
+interface ExtractedData {
+  full_name: string | null;
+  job_title: string | null;
+  company_name: string | null;
+  email: string | null;
+  phone: string | null;
+  has_whatsapp: boolean | null;
+  website: string | null;
+  address: string | null;
+  geolocation: { lat: number; lng: number } | null;
+  social_profiles: string[] | null;
+  tags: string[] | null;
+  summary: string | null;
+  qr_url: string | null;
+  front_card_corners: CardCorners | null;
+  back_card_corners: CardCorners | null;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -139,9 +171,10 @@ export async function POST(request: NextRequest) {
         if (textResult) {
           break; // Exit loop on success
         }
-      } catch (err: any) {
-        console.error(`Model ${modelName} failed:`, err.message || err);
-        lastError = err;
+      } catch (err) {
+        const appErr = toAppError(err);
+        console.error(`Model ${modelName} failed:`, appErr.message);
+        lastError = appErr;
         // Proceed to next model in the array
       }
     }
@@ -153,9 +186,9 @@ export async function POST(request: NextRequest) {
     // Strip markdown formatting if Gemini includes it (e.g., ```json\n...\n```)
     textResult = textResult.replace(/```(?:json)?/g, '').trim();
 
-    let extractedData;
+    let extractedData: ExtractedData;
     try {
-      extractedData = JSON.parse(textResult);
+      extractedData = JSON.parse(textResult) as ExtractedData;
     } catch (e) {
       console.error("Failed to parse Gemini output as JSON", textResult);
       throw new Error("Invalid JSON returned by AI");
@@ -245,17 +278,18 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true, data: extractedData });
-  } catch (error: any) {
-    console.error("Extraction error:", error);
+  } catch (error) {
+    const appErr = toAppError(error);
+    console.error("Extraction error:", appErr);
     return NextResponse.json(
-      { error: error.message || "Unknown error occurred" },
-      { status: 500 },
+      { error: appErr.message },
+      { status: appErr.statusCode || 500 },
     );
   }
 }
 
 
-async function cropImage(arrayBuffer: ArrayBuffer, corners: any, imagePath: string, supabase: any): Promise<string | null> {
+async function cropImage(arrayBuffer: ArrayBuffer, corners: CardCorners, imagePath: string, supabase: SupabaseClient): Promise<string | null> {
   try {
     const { data: rawData, info } = await sharp(Buffer.from(arrayBuffer))
       .rotate()
@@ -357,7 +391,8 @@ async function cropImage(arrayBuffer: ArrayBuffer, corners: any, imagePath: stri
     }
     return croppedPath;
   } catch (err) {
-    console.error("Error cropping image:", err);
+    const appErr = toAppError(err);
+    console.error("Error cropping image:", appErr.message);
     return null;
   }
 }

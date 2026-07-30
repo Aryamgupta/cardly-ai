@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import sharp from "sharp";
+import { toAppError } from "@/utils/errors";
 
 export async function POST(request: NextRequest) {
   try {
@@ -169,11 +170,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, message: "Cropped and rotated successfully without hitting AI" });
 
-  } catch (error: any) {
-    console.error("Test Crop Error:", error);
+  } catch (error) {
+    const appErr = toAppError(error);
+    console.error("Test Crop Error:", appErr);
     return NextResponse.json(
-      { error: error.message || "Unknown error occurred" },
-      { status: 500 }
+      { error: appErr.message },
+      { status: appErr.statusCode || 500 }
     );
   }
 }
