@@ -2,6 +2,7 @@ import { User, Bell, Shield, LogOut, ChevronRight, Link2, HelpCircle, Pencil, Da
 import { signOut } from "@/app/actions/auth";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
+import { InlinePwaButton } from "@/components/ui/InlinePwaButton";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -99,11 +100,17 @@ export default async function SettingsPage() {
         </div>
 
         {/* Existing Bottom / Sign Out */}
-        <form action={signOut}>
-          <button type="submit" className="w-full bg-white border border-red-200 text-red-600 rounded-2xl p-4 font-medium flex items-center justify-center gap-2 hover:bg-red-50 transition-colors shadow-sm">
-            <LogOut className="w-5 h-5" /> Sign Out
-          </button>
-        </form>
+        <div className="space-y-4 mt-6">
+          <InlinePwaButton 
+            text="Install Cardly AI"
+            className="w-full bg-[#EEF2FF] text-[#5551FF] hover:bg-[#E0E7FF] rounded-2xl p-4 font-bold shadow-sm"
+          />
+          <form action={signOut}>
+            <button type="submit" className="w-full bg-white border border-red-200 text-red-600 rounded-2xl p-4 font-medium flex items-center justify-center gap-2 hover:bg-red-50 transition-colors shadow-sm">
+              <LogOut className="w-5 h-5" /> Sign Out
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

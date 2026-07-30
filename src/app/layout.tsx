@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { PwaInstallPrompt } from "@/components/ui/PwaInstallPrompt";
+import { PwaProvider } from "@/components/providers/PwaProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,9 +40,11 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-slate-50">
-        {children}
-        <Toaster position="top-center" duration={4000} />
-        <PwaInstallPrompt />
+        <PwaProvider>
+          {children}
+          <Toaster position="top-center" duration={4000} />
+          <PwaInstallPrompt />
+        </PwaProvider>
       </body>
     </html>
   );

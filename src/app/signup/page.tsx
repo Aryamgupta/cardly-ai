@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Loader2, AlertCircle, ArrowLeft, MailCheck } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { signUp } from "@/app/actions/auth";
+import { InlinePwaButton } from "@/components/ui/InlinePwaButton";
 import { useState, useTransition } from "react";
 
 export default function SignupPage() {
@@ -115,6 +116,14 @@ export default function SignupPage() {
             )}
           </button>
             </form>
+
+            <div className="mt-6 pt-2">
+              <InlinePwaButton 
+                showDivider 
+                text="Install App"
+                className="w-full bg-transparent border border-primary text-primary py-3.5 rounded-xl hover:bg-primary/10 mt-2" 
+              />
+            </div>
 
             <p className="text-center text-sm text-muted-foreground mt-6">
               Already have an account? <Link href="/login" className="text-white hover:underline font-medium">Sign in</Link>
