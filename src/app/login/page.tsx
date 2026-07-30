@@ -1,15 +1,36 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Loader2, AlertCircle, ArrowLeft } from "lucide-react";
+import { ArrowRight, Loader2, AlertCircle, ArrowLeft, Fingerprint } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { signIn } from "@/app/actions/auth";
 import { PwaInstallButton } from "@/components/PwaInstallButton";
 import { useState, useTransition } from "react";
+import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  async function handleBiometricLogin() {
+    setError(null);
+    startTransition(async () => {
+      try {
+        const supabase = createClient();
+        const { error: signInError } = await supabase.auth.signInWithPasskey();
+        
+        if (signInError) throw signInError;
+        
+        // Passkey success, reload or route to redirect
+        router.push("/dashboard");
+      } catch (err: any) {
+        console.error("Biometric login failed:", err);
+        setError(err.message || "Failed to sign in with passkey.");
+      }
+    });
+  }
 
   async function onSubmit(formData: FormData) {
     setError(null);
@@ -93,6 +114,16 @@ export default function LoginPage() {
             )}
           </button>
         </form>
+
+        <button
+          type="button"
+          onClick={handleBiometricLogin}
+          disabled={isPending}
+          className="w-full bg-white/5 border border-white/10 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-white/10 transition-colors mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Fingerprint className="w-5 h-5" />
+          Sign in with Passkey / Biometrics
+        </button>
 
         <div className="mt-6  pt-6 border-t border-white/10">
           <PwaInstallButton />

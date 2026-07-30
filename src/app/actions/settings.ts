@@ -53,3 +53,32 @@ export async function updateUserSettings(emailNotifs: boolean, inAppNotifs: bool
   
   return { success: true };
 }
+
+export async function updateProfile(fullName: string, avatarUrl: string) {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    throw new Error("Unauthorized");
+  }
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ 
+      full_name: fullName,
+      avatar_url: avatarUrl
+    })
+    .eq("id", user.id);
+
+  if (error) {
+    console.error("Error updating profile:", error);
+    throw new Error("Failed to update profile");
+  }
+
+  revalidatePath("/settings");
+  revalidatePath("/settings/account");
+  revalidatePath("/dashboard");
+  revalidatePath("/", "layout");
+  
+  return { success: true };
+}

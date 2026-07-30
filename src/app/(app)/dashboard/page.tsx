@@ -10,10 +10,10 @@ import { AIRecommendation } from "@/components/dashboard/AIRecommendation";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
-  
+
   // Get authenticated user (fast)
   const { data: { user } } = await supabase.auth.getUser();
-  
+
   // Fetch profile (fast)
   const { data: profile } = await supabase
     .from('profiles')
@@ -22,6 +22,15 @@ export default async function DashboardPage() {
     .single();
 
   const firstName = profile?.full_name ? profile.full_name.split(' ')[0] : 'User';
+
+  const greeting = () => {
+    const hour = new Date().getHours();
+
+    if (hour < 12) return "Good morning,";
+    if (hour < 17) return "Good afternoon,";
+    if (hour < 21) return "Good evening,";
+    return "Good night,";
+  };
 
   return (
     <div className="p-6 pb-24">
@@ -32,7 +41,7 @@ export default async function DashboardPage() {
             <UserIcon className="text-primary w-5 h-5" />
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Good morning,</p>
+            <p className="text-sm text-muted-foreground">{greeting()}</p>
             <h1 className="text-xl font-bold text-primary">{firstName}</h1>
           </div>
         </div>

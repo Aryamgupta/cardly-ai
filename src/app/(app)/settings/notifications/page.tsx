@@ -1,14 +1,14 @@
 import { getUserSettings } from "@/app/actions/settings";
 import { SettingsForm } from "./SettingsForm";
-import { User, ChevronLeft } from "lucide-react";
+import { Bell, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Account Preferences | Cardly AI",
-  description: "Manage your Cardly AI account preferences",
+  title: "Notifications | Cardly AI",
+  description: "Manage your Cardly AI notification preferences",
 };
 
-export default async function AccountPreferencesPage() {
+export default async function NotificationsPage() {
   const settings = await getUserSettings();
 
   return (
@@ -20,10 +20,10 @@ export default async function AccountPreferencesPage() {
         </Link>
         <div className="flex items-center gap-3">
           <div className="p-3 bg-slate-100 text-slate-700 rounded-2xl shadow-inner">
-            <User className="w-6 h-6" />
+            <Bell className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Account Preferences</h1>
+            <h1 className="text-2xl font-bold text-foreground">Notifications</h1>
             <p className="text-muted-foreground">Manage your notifications and alerts.</p>
           </div>
         </div>
