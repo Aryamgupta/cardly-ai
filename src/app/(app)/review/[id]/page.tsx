@@ -8,7 +8,7 @@ import { DiscardButton } from "./DiscardButton";
 import { SubmitReviewButton } from "./SubmitReviewButton";
 import { enrichAndEmbedContact } from "@/services/ai/enrichContact";
 
-export default async function ReviewPage({ params, searchParams }: { params: { id: string }, searchParams: Promise<{ overwrite?: string }> }) {
+export default async function ReviewPage({ params, searchParams }: { params: Promise<{ id: string }>, searchParams: Promise<{ overwrite?: string }> }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
