@@ -99,7 +99,7 @@ export default async function ContactProfilePage({
           <ArrowLeft className="w-6 h-6" /> Cardly AI
         </Link>
         <div className="flex items-center gap-4 text-foreground">
-          {card.original_image_path && (
+          {process.env.NODE_ENV !== "production" && card.original_image_path && (
             <TestButton
               cardId={card.id}
               originalPath={card.original_image_path}
@@ -246,10 +246,10 @@ export default async function ContactProfilePage({
           </p>
 
           {card.ai_metadata?.qr_url && (
-            <a 
+            <a
               href={card.ai_metadata.qr_url.startsWith('http') ? card.ai_metadata.qr_url : `https://${card.ai_metadata.qr_url}`}
               target="_blank"
-              rel="noopener noreferrer" 
+              rel="noopener noreferrer"
               className="flex items-center gap-2 mb-4 px-3 py-2 bg-secondary/10 text-secondary border border-secondary/20 rounded-lg text-sm font-medium hover:bg-secondary/20 transition-colors"
             >
               <LinkIcon className="w-4 h-4" />
