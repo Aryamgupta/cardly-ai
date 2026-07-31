@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Bell, AlertCircle, Clock } from "lucide-react";
-import Link from "next/link";
+import { Bell } from "lucide-react";
 import {
   getPendingFollowUpNotifications,
   NotificationItem,
 } from "@/app/actions/notifications";
+import { NotificationCard } from "./Cards/NotificationCard";
 
 export function NotificationMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -61,52 +61,16 @@ export function NotificationMenu() {
           <div className="max-h-[300px] overflow-y-auto">
             {notifications.length > 0 ? (
               <div className="divide-y divide-slate-100">
-                {notifications.map((notif) => {
-                  const isSystem = notif.isSystem;
-                  const Wrapper = isSystem ? "div" : Link;
-                  const wrapperProps = isSystem 
-                    ? { className: "p-4 flex gap-3 hover:bg-slate-50 transition-colors cursor-default" } 
-                    : { href: `/contacts/${notif.cardId}`, onClick: () => setIsOpen(false), className: "p-4 flex gap-3 hover:bg-slate-50 transition-colors block cursor-pointer" };
-
-                  return (
-                    <Wrapper
-                      key={notif.id}
-                      {...(wrapperProps as any)}
-                    >
-                      <div
-                        className={`mt-0.5 w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                          isSystem 
-                            ? "bg-blue-100 text-blue-600" 
-                            : notif.isOverdue 
-                              ? "bg-red-100 text-red-600" 
-                              : "bg-amber-100 text-amber-600"
-                        }`}
-                      >
-                        {isSystem ? (
-                          <Bell className="w-4 h-4" />
-                        ) : notif.isOverdue ? (
-                          <AlertCircle className="w-4 h-4" />
-                        ) : (
-                          <Clock className="w-4 h-4" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-slate-800 mb-0.5">
-                          {notif.title}
-                        </p>
-                        <p className="text-xs text-muted-foreground line-clamp-2">
-                          {notif.message}
-                        </p>
-                      </div>
-                    </Wrapper>
-                  );
-                })}
+                {notifications.map((notif) => (
+                  <NotificationCard
+                    key={notif.id}
+                    notif={notif}
+                    onClick={setIsOpen}
+                  />
+                ))}
               </div>
             ) : (
-              <div className="p-6 text-center text-slate-500 flex flex-col items-center gap-2">
-                <Bell className="w-8 h-8 opacity-20" />
-                <p className="text-sm">You&apos;re all caught up!</p>
-              </div>
+              NotificationEmptyBanner()
             )}
           </div>
           <div className="p-3 border-t border-slate-100 text-center bg-slate-50">
@@ -118,4 +82,14 @@ export function NotificationMenu() {
       )}
     </div>
   );
+}
+
+
+const NotificationEmptyBanner = () => {
+  return (
+    <div className="p-6 text-center text-slate-500 flex flex-col items-center gap-2">
+      <Bell className="w-8 h-8 opacity-20" />
+      <p className="text-sm">You&apos;re all caught up!</p>
+    </div>
+  )
 }

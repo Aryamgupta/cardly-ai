@@ -1,3 +1,4 @@
+
 export interface Address {
   text?: string;
   coordinates?: {
@@ -47,4 +48,16 @@ export interface Card {
   created_at?: string;
   updated_at?: string;
   back_image_path?: string;
+}
+
+
+
+
+
+export interface FolloUpType {
+  id: string;
+  full_name: string;
+  designation: string;
+  company_name: string;
+  follow_up_date: string;
 }

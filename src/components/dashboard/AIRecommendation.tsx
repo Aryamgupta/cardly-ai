@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/server";
 import { getAvatar } from "@/utils/common/common";
+import { Avatar } from "../ui/Common/Avatar";
 
 export async function AIRecommendation() {
   const supabase = await createClient();
@@ -62,18 +63,7 @@ export async function AIRecommendation() {
           className="flex items-center gap-4 bg-white p-3 rounded-lg border border-slate-100 shadow-sm hover:border-primary/30 hover:shadow transition-all group"
         >
           <div className="w-12 h-12 rounded-full bg-slate-100 overflow-hidden relative flex-shrink-0">
-            {imageUrl ? (
-              <img
-                src={getAvatar(contact.full_name)}
-                alt={contact.full_name}
-                className="object-cover"
-                sizes="48px"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-primary/5 text-primary font-medium text-lg">
-                {contact.full_name.charAt(0)}
-              </div>
-            )}
+            <Avatar fullname={contact.full_name} />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
