@@ -21,14 +21,17 @@ export async function GET(request: Request) {
     }
 
     // 1. Fetch pending follow-ups that are due today or overdue, and haven't had a reminder sent
-    const today = new Date().toISOString();
+    // We use the end of today so we catch anything scheduled for any time today
+    const now = new Date();
+    now.setUTCHours(23, 59, 59, 999);
+    const endOfToday = now.toISOString();
 
     const { data: followUps, error } = await supabaseAdmin
       .from('cards')
       .select('id, full_name, company_name, user_id, follow_up_date')
       .eq('follow_up_status', 'pending')
       .eq('reminder_sent', false)
-      .lte('follow_up_date', today); // Due today or earlier
+      .lte('follow_up_date', endOfToday); // Due today or earlier
 
     if (error) {
       console.error('Error fetching follow-ups:', error);
